@@ -1,0 +1,6 @@
+[Unit]
+Description=Pull ~/.agents from GitHub
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh %h/.agents/bin/sync

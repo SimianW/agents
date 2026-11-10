@@ -50,6 +50,10 @@ When the user asks you to send a file, link it in your reply as Markdown with it
 
 Write every mathematical formula in LaTeX, including formulas in chat replies. Use `$...$` for inline math and `$$...$$` for display math. Do not substitute Unicode symbols or plain-text notation such as `Σ`, `P_{i,j}^{(n)}` outside math delimiters, or `x^2`, even when the output may be shown in a terminal.
 
+## Steering files
+
+`~/.agents` (this file, `skills/`, `claude/CLAUDE.md`) is a git checkout of `SimianW/agents`, shared by all of the user's machines. When you edit a file there, commit and push it in the same task. Before you run the skills CLI, read `~/.agents/README.md`.
+
 ## Frontend changes
 
 Before any visible frontend change, use the `mockup-first` skill: show the user a mockup and wait for approval.

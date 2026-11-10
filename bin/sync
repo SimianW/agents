@@ -1,0 +1,17 @@
+#!/bin/sh
+# Run by the agents-sync timer: pull ~/.agents and keep ~/.claude/skills links in step with skills/.
+set -eu
+A="$HOME/.agents"
+L="$HOME/.claude/skills"
+git -C "$A" pull --ff-only --quiet
+mkdir -p "$L"
+for d in "$A"/skills/*/; do
+  n=$(basename "$d")
+  [ -e "$L/$n" ] || [ -L "$L/$n" ] || ln -s "../../.agents/skills/$n" "$L/$n"
+done
+# Drop links to skills that were removed from the repo.
+for l in "$L"/*; do
+  if [ -L "$l" ] && [ ! -e "$l" ]; then
+    case "$(readlink "$l")" in ../../.agents/skills/*) rm "$l" ;; esac
+  fi
+done
