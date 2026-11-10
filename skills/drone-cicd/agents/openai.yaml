@@ -1,0 +1,4 @@
+interface:
+  display_name: "Drone CI/CD"
+  short_description: "Configure and validate self-hosted Drone deployments"
+  default_prompt: "Use $drone-cicd to adapt this repository to the existing Drone runner and Docker Compose deployment."

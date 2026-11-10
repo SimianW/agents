@@ -1,0 +1,5 @@
+interface:
+  display_name: "Explain Math"
+  short_description: "Explain a math concept visual-first"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mockup First"
+  short_description: "Show a mockup and get approval before frontend changes"
+  default_prompt: "Use $mockup-first to show me a mockup of the proposed UI change and wait for my approval."

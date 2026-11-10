@@ -1,0 +1,5 @@
+interface:
+  display_name: "Pickup"
+  short_description: "Pickup a conversation handoff"
+policy:
+  allow_implicit_invocation: false
