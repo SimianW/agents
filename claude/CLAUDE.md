@@ -51,9 +51,4 @@ Otherwise, run the `review-loop` skill before you push or merge a change that:
 For anything else, your own verification is enough. If you skip review on a change close to one
 of these lines, say so in one line of your report.
 
-`code-review` checks design and spec fit; run it when `implement`, `implement-spec`, the user or
-the repo asks. Sort its findings into fix now / follow-up issue / drop, one line of reason each,
-and let the user choose before you fix. `review-loop` still gates the push when a trigger above
-applies; list the approved refactors in its Intent.
-
 @~/.agents/AGENTS.md
