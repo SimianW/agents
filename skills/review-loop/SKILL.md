@@ -16,8 +16,9 @@ of scope creep and don't be scared to push back.
 ## Budget
 
 - If the repo has `scripts/review-tier.py` or `scripts/check-pr-body.py`, run
-  it against the base (`check-pr-body.py tier <base>`); its tier sets the budget: tier 0 needs no review, tier 1 gets the default, tier 2 may
-  extend to 5. Otherwise use the rules below.
+  it against the base (`check-pr-body.py tier <base>`); its tier sets the
+  budget: tier 0 needs no review, tier 1 gets the default, tier 2 may extend
+  to 5. Otherwise use the rules below.
 - Default: 3 rounds total. Round 1 is full. Later rounds check only
   changed code and open findings.
 - Extend to 5 only for security, permissions, auth, data loss, or
