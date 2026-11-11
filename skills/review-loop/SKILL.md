@@ -8,7 +8,8 @@ description: Use before pushing or merging a change that meets the CLAUDE.md Rev
 This is a workflow for making your code changes more correct before (or
 sometimes after) filing a pull request: a reviewer model checks the diff in a
 loop. The reviewer is the model in the **Hunt** row of the global CLAUDE.md
-table (currently Sol); this skill calls it Sol.
+table (currently Sol); this skill calls it Sol. A final pass by Fable 5.2
+follows Sol's approval.
 
 Make the most minimal possible changes to appease the Sol reviewers. Be careful
 of scope creep and don't be scared to push back.
@@ -27,7 +28,9 @@ of scope creep and don't be scared to push back.
   doc, or format-only fixes need no new round.
 - Stop at the first APPROVE on the current behavior diff. 5 rounds is the
   hard ceiling.
-- One reviewer only. Sol must not start subagents or reviewers.
+- After Sol approves, a final Fable pass (step 5) has its own budget: 2 rounds
+  (tier 1, or the default), 3 (tier 2, or an extended loop). Tier 0 gets none.
+- One reviewer at a time. Reviewers must not start subagents or reviewers.
 - Keep a ledger: id, severity, outcome, usage if returned. Never guess it.
 
 ## 1. Scope
@@ -114,22 +117,34 @@ the ledger (`fixed:` / `disagree:` / `declined:` + evidence), the same base
 diff, and the change since last round. Tell Sol: open ids and changed code only.
 Mark each old id `resolved` or `still open: <reason>`.
 
-## 5. Stop and ship
+## 5. Final Fable pass
 
-Agreed: APPROVE on the current behavior diff, no blocker or should open,
-no concern of your own. Stuck: an item stays disputed after two replies,
-or budget ends. Show both sides in 2-3 lines each. The user decides.
-Budget end is not approval.
+Once Sol approves, run one more full review with Fable 5.2 on high effort
+(T3 target: `{"providerInstanceId": "claudeAgent", "model": "claude-fable-5-2",
+"options": {"effort": "high"}}`). Send the round 1 brief with the full base
+diff, plus Sol's ledger so Fable skips settled ids. Answer its findings as in
+step 3. If you fix a blocker or should, the next Fable round checks open ids and
+changed code only; it does not go back to Sol. Fable's APPROVE on the current
+behavior diff closes the loop. Skip this pass when the whole loop already ran on
+Fable.
+
+## 6. Stop and ship
+
+Agreed: APPROVE from the last reviewer on the current behavior diff, no
+blocker or should open, no concern of your own. Stuck: an item stays disputed
+after two replies, or budget ends. Show both sides in 2-3 lines each. The user
+decides. Budget end is not approval.
 
 Do not push during the loop. Push after agreement only if the user asked
 to push, ship, or update the PR. If you push to a PR, add above the model
 blurb:
 
-`Reviewed with review-loop: <N> rounds with <model> at <sha>. Verdict: approved`.
+`Reviewed with review-loop: <N> rounds with <model>, <M> with <fable model> at <sha>. Verdict: approved`.
 
-`<sha>` is the short hash of the commit holding the approved diff. Add
-`on <effort>` after the model only if verified. A later commit that changes
-behavior needs a new loop and a new `<sha>`.
+`<sha>` is the short hash of the commit holding the diff the last reviewer
+approved. Add `on <effort>` after a model only if verified. A later commit that
+changes behavior needs a new loop and a new `<sha>`.
 
-Report: rounds, model, what Sol changed, diff size before/after, fixed and
-declined findings with reasons, usage if exposed (else say not), pushed or not.
+Report: rounds per model, what each reviewer changed, diff size before/after,
+fixed and declined findings with reasons, usage if exposed (else say not),
+pushed or not.
