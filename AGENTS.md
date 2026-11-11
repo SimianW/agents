@@ -36,9 +36,9 @@ End the block with a `---` line. Start every bullet with `- `, because lines wit
 
 When prompting the user to edit files, always use `vim` instead of `nano`.
 
-## Remote access to local pages
+## Local pages
 
-When asking the user to open a locally generated page, preview, or app, serve it at `http://<host>:<port>/<path>` so they can access it remotely through Tailscale. `<host>` is this machine's Tailscale MagicDNS name, kept per machine in `~/.agents/machine.md`; when that file's content is not already in your context, read the file. `hostname` returns a different name. If the file is missing, ask the user for the name and save it there. Bind the server to the Tailscale interface or `0.0.0.0`, verify the URL responds, and keep the server running while the user reviews it. Include the full clickable URL in the reply.
+When asking the user to open a locally generated page, preview, or app, serve it at `http://<host>:<port>/<path>` and bind the server to `<bind>`. `~/.agents/machine.md` sets `<host>` and `<bind>` for this machine; when its content is not already in your context, read the file. If the file is missing, ask the user for both values and save them there. Verify the URL responds, and keep the server running while the user reviews it. Include the full clickable URL in the reply.
 
 @~/.agents/machine.md
 

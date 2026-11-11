@@ -1,7 +1,5 @@
 # Global instructions
 
-- For web research, prefer Exa when its semantic search or source excerpts are useful. Use built-in WebSearch when Exa is unavailable or its results are insufficient. Check important claims against the original sources.
-
 ## Subagents
 
 Send each block of work to the model that is best at it. As the **lead**, you talk with the
