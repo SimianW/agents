@@ -19,17 +19,21 @@ Use this template for writing the PR body:
 ## Evidence
 
 - **Before:** <screenshot/output/failing test run>
-  **After:** <screenshot/output/passing test run>
+- **After:** <screenshot/output/passing test run>
 
 ## Merge Danger
 
-**Door:** <one-way or two-way>
+| Door | Blast radius |
+|---|---|
+| <one-way or two-way> | <one-word description> |
 
-<optional: description>
+<optional: why, and potential ramifications of merge>
 
-**Blast Radius:** <one-word description>
+## Review
 
-<optional: potential ramifications of merge>
+Review tier: <N>
+
+<review line and folded findings, filled by review-loop>
 ```
 
 ## Sections
@@ -172,3 +176,7 @@ Execution-based evidence is A-tier. Test results, console output. Show the exact
 Describe whether it's a one-way or two-way door. You can walk back through two-way doors, but not one-way doors. A PR that is cheap to roll back is lower risk. Changes that involve destructive actions or hard-to-reverse decisions are one-way doors.
 
 The blast radius is the potential impact or scope of the changes introduced by this PR. Consider all possibilities. Examples are layout shift, breakages for consumers, mobile responsiveness, etc.
+
+### Review
+
+Include this section when the repo sets a review tier or `review-loop` ran; it goes last, above the model blurb. CI scripts match the `Review tier: <N>` line and the review line whole, so keep each one plain text on a line of its own with a blank line between them. Drop the tier line when the repo has no review tier.

@@ -1,17 +1,16 @@
 ---
 name: review-loop
-description: Use before pushing or merging a change that meets the CLAUDE.md Reviews triggers or the repo's review rule, or when the user says "review loop" or "sol loop".
+description: Use before pushing or merging a change that meets the CLAUDE.md Reviews triggers or the repo's review rule, or when the user says "review loop".
 ---
 
 # review-loop
 
 This is a workflow for making your code changes more correct before (or
 sometimes after) filing a pull request: a reviewer model checks the diff in a
-loop. The reviewer is the model in the **Hunt** row of the global CLAUDE.md
-table (currently Sol); this skill calls it Sol. A final pass by Fable 5.2
-follows Sol's approval.
+loop. The reviewer runs the model in the **Hunt** row of the global CLAUDE.md
+table. A final pass by Fable 5.2 follows the reviewer's approval.
 
-Make the most minimal possible changes to appease the Sol reviewers. Be careful
+Make the most minimal possible changes to appease the reviewers. Be careful
 of scope creep and don't be scared to push back.
 
 ## Budget
@@ -28,7 +27,7 @@ of scope creep and don't be scared to push back.
   doc, or format-only fixes need no new round.
 - Stop at the first APPROVE on the current behavior diff. 5 rounds is the
   hard ceiling.
-- After Sol approves, a final Fable pass (step 5) has its own budget: 2 rounds
+- After the reviewer approves, a final Fable pass (step 5) has its own budget: 2 rounds
   (tier 1, or the default), 3 (tier 2, or an extended loop). Tier 0 gets none.
 - One reviewer at a time. Reviewers must not start subagents or reviewers.
 - Keep a ledger: id, severity, outcome, usage if returned. Never guess it.
@@ -52,7 +51,7 @@ Use one diff command all rounds. State intent and out-of-scope in 1-2
 sentences. Run covering checks. Do not send code this change breaks. Note
 missing or pre-failing checks in the brief.
 
-## 2. Start Sol
+## 2. Start the reviewer
 
 In T3, call `orchestrator_capabilities`. Use the Hunt model and options from
 the CLAUDE.md table unless the user named another. Record provider, model, and
@@ -62,9 +61,9 @@ effort only if exposed. Use `delegate_task` every round (`role: "review"`,
 `t3_thread_send`, `create_threads`, or `t3_thread_launch` for review.
 
 If T3 tools are not listed, try one direct capability call. Outside T3, use
-a native Sol subagent and keep its ID. In Claude Code, use a custom subagent
-only if it is set up to run Sol. If no route runs Sol (for example, Codex
-credits ran out), ask the user once which model to use instead, run the whole
+a native subagent on the Hunt model and keep its ID. In Claude Code, use a
+custom subagent only if it is set up to run the Hunt model. If no route runs it
+(for example, Codex credits ran out), ask the user once which model to use instead, run the whole
 loop on that one model, and name it in the PR line.
 
 Do not edit scoped files while review runs. Wait for the notice. Do not
@@ -73,7 +72,7 @@ approval. On failure, cancel, verify stop, restart with the ledger.
 
 Round 1 brief (T3 children get no history). If the repo has
 `CODING_STANDARDS.md`, paste its full text where the brief says `Standards`;
-otherwise drop that block and the `RULES:` line.
+otherwise drop that block and the `### Standards` table.
 
 ```
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
@@ -88,10 +87,19 @@ tests, or guards the intent does not need. Other paths, rare cases, small
 perf, extra compat: nits.
 blocker = intended case wrong. should = real bug callers will hit, in intent. nit = rest.
 A standards rule sets its own severity when it names one.
-Reply:
-VERDICT: APPROVE or CHANGES
-RULES: <each standards rule by heading>: pass | <finding id>
-S1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion> (stable ids)
+Reply in Markdown, in this shape. Number findings R1, R2, ... and keep ids
+stable across rounds; write "None." under Findings when there are none.
+
+## Verdict: APPROVE | CHANGES
+
+### Findings
+- **R1 · blocker|should|nit** `<file>:<line>`: <claim>
+  **Fix:** <suggestion>
+
+### Standards
+| Rule | Result |
+|---|---|
+| <each standards rule by heading> | pass, or <finding id> |
 ```
 
 ## 3. Answer findings
@@ -114,17 +122,19 @@ Start one only if budget remains and a blocker or should is open, behavior code
 changed, or approval does not cover the current behavior diff. Use a fresh
 `delegate_task` in T3, or follow up the saved native ID. Send the round 1 brief,
 the ledger (`fixed:` / `disagree:` / `declined:` + evidence), the same base
-diff, and the change since last round. Tell Sol: open ids and changed code only.
-Mark each old id `resolved` or `still open: <reason>`.
+diff, and the change since last round. Tell the reviewer: open ids and changed
+code only, and list each old id under `### Earlier findings` as `resolved` or
+`still open: <reason>`.
 
 ## 5. Final Fable pass
 
-Once Sol approves, run one more full review with Fable 5.2 on high effort
+Once the reviewer approves, run one more full review with Fable 5.2 on high effort
 (T3 target: `{"providerInstanceId": "claudeAgent", "model": "claude-fable-5-2",
 "options": {"effort": "high"}}`). Send the round 1 brief with the full base
-diff, plus Sol's ledger so Fable skips settled ids. Answer its findings as in
+diff, plus the ledger so Fable skips settled ids, and tell Fable to number its
+findings F1, F2, ... Answer its findings as in
 step 3. If you fix a blocker or should, the next Fable round checks open ids and
-changed code only; it does not go back to Sol. Fable's APPROVE on the current
+changed code only; it does not go back to the reviewer. Fable's APPROVE on the current
 behavior diff closes the loop. Skip this pass when the whole loop already ran on
 Fable.
 
@@ -136,15 +146,44 @@ after two replies, or budget ends. Show both sides in 2-3 lines each. The user
 decides. Budget end is not approval.
 
 Do not push during the loop. Push after agreement only if the user asked
-to push, ship, or update the PR. If you push to a PR, add above the model
-blurb:
+to push, ship, or update the PR. If you push to a PR, fill the body's
+`## Review` section (layout in the `pr` skill; add the section above the model
+blurb if the body has none) with the review line and a folded ledger:
 
-`Reviewed with review-loop: <N> rounds with <model>, <M> with <fable model> at <sha>. Verdict: approved`.
+```markdown
+Reviewed with review-loop: <N> rounds with <model>, <M> with <fable model> at <sha>. Verdict: approved
 
-`<sha>` is the short hash of the commit holding the diff the last reviewer
-approved. Add `on <effort>` after a model only if verified. A later commit that
-changes behavior needs a new loop and a new `<sha>`.
+<details>
+<summary>Findings: <n> fixed, <n> declined</summary>
 
-Report: rounds per model, what each reviewer changed, diff size before/after,
-fixed and declined findings with reasons, usage if exposed (else say not),
-pushed or not.
+| ID | Severity | Outcome | Finding |
+|---|---|---|---|
+| R1 | blocker | fixed | `<file>:<line>` <claim, one line> |
+| F1 | nit | declined | <claim>: <reason> |
+
+</details>
+```
+
+Keep the review line plain text on a line of its own: CI scripts match it
+whole. `<sha>` is the short hash of the commit holding the diff the last
+reviewer approved. Add `on <effort>` after a model only if verified. A later
+commit that changes behavior needs a new loop and a new `<sha>`. Drop the
+`<details>` block when no reviewer raised a finding.
+
+Report to the user in this shape:
+
+```markdown
+**Review loop: approved** at `<sha>` · <N> rounds <model>, <M> <fable model> · pushed: yes|no
+
+| ID | Severity | Outcome | Finding |
+|---|---|---|---|
+| R1 | blocker | fixed | <claim, one line> |
+| F1 | nit | declined | <claim>: <reason> |
+
+**Diff:** <shortstat before> → <shortstat after>
+
+**Usage:** <per model, or "not exposed">
+```
+
+A stuck loop reads **Review loop: stuck** instead, and the disputed items
+follow.
