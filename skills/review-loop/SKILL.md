@@ -15,8 +15,8 @@ of scope creep and don't be scared to push back.
 
 ## Budget
 
-- If the repo has `scripts/review-tier.py`, run it against the base; its tier
-  sets the budget: tier 0 needs no review, tier 1 gets the default, tier 2 may
+- If the repo has `scripts/review-tier.py` or `scripts/check-pr-body.py`, run
+  it against the base (`check-pr-body.py tier <base>`); its tier sets the budget: tier 0 needs no review, tier 1 gets the default, tier 2 may
   extend to 5. Otherwise use the rules below.
 - Default: 3 rounds total. Round 1 is full. Later rounds check only
   changed code and open findings.
@@ -146,12 +146,14 @@ after two replies, or budget ends. Show both sides in 2-3 lines each. The user
 decides. Budget end is not approval.
 
 Do not push during the loop. Push after agreement only if the user asked
-to push, ship, or update the PR. If you push to a PR, fill the body's
-`## Review` section (layout in the `pr` skill; add the section above the model
-blurb if the body has none) with the review line and a folded ledger:
+to push, ship, or update the PR. If you push to a PR, add the Verdict and
+Reviewers items and a folded ledger under the body's `## Review` section, after
+its Tier item (layout in the `pr` skill; add the section above the model blurb
+if the body has none):
 
 ```markdown
-Reviewed with review-loop: <N> rounds with <model>, <M> with <fable model> at <sha>. Verdict: approved
+- **Verdict:** approved at `<sha>`
+- **Reviewers:** <model> ×<N> → <fable model> ×<M>
 
 <details>
 <summary>Findings: <n> fixed, <n> declined</summary>
@@ -164,11 +166,15 @@ Reviewed with review-loop: <N> rounds with <model>, <M> with <fable model> at <s
 </details>
 ```
 
-Keep the review line plain text on a line of its own: CI scripts match it
-whole. `<sha>` is the short hash of the commit holding the diff the last
-reviewer approved. Add `on <effort>` after a model only if verified. A later
-commit that changes behavior needs a new loop and a new `<sha>`. Drop the
+Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
+the short hash of the commit holding the diff the last reviewer approved. A
+later commit that changes behavior needs a new loop and a new `<sha>`. Drop
+`→ <fable model> ×<M>` when the whole loop ran on one model, and the
 `<details>` block when no reviewer raised a finding.
+
+To enforce this in a repo's CI, copy `scripts/check-pr-body.py` from this
+skill into the repo's `scripts/`, fill its `TODO(repo)` blanks, and add the
+workflow at the bottom of that file. Its `tier` mode prints the Tier item.
 
 Report to the user in this shape:
 

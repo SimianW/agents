@@ -31,9 +31,8 @@ Use this template for writing the PR body:
 
 ## Review
 
-Review tier: <N>
-
-<review line and folded findings, filled by review-loop>
+- **Tier:** <N>
+<Verdict and Reviewers items, then folded findings, filled by review-loop>
 ```
 
 ## Sections
@@ -179,4 +178,4 @@ The blast radius is the potential impact or scope of the changes introduced by t
 
 ### Review
 
-Include this section when the repo sets a review tier or `review-loop` ran; it goes last, above the model blurb. CI scripts match the `Review tier: <N>` line and the review line whole, so keep each one plain text on a line of its own with a blank line between them. Drop the tier line when the repo has no review tier.
+Include this section when the repo sets a review tier or `review-loop` ran; it goes last, above the model blurb. CI scripts match the Tier and Verdict items, so keep them in exactly the template's shape. Drop the Tier item when the repo has no review tier.
