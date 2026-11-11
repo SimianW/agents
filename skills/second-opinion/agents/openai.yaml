@@ -1,4 +1,4 @@
 interface:
   display_name: "Second opinion"
   short_description: "Check for an XY problem, test approaches against real implementations, score and recommend"
-  default_prompt: "使用 $second-opinion 审视当前方案。"
+  default_prompt: "Use $second-opinion to review the current plan."

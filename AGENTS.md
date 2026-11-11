@@ -2,7 +2,7 @@
 
 Bold whole words only. Never open or close `**` inside a word, especially next to an apostrophe or other punctuation, because the bold won't render. For example, write "**what's**", not "what**'s**".
 
-Never put a bare URL directly next to `**`, `_`, `~`, or full-width punctuation such as `（`, `：`, `，`. GFM extends a bare URL until the next space, so it swallows the closing `**` and the bold breaks. Leave URLs unbolded and put a space after them, or wrap them as `<http://…>` or `[label](http://…)`. For example, write "**打开看：** http://<host>:5190 （…）", not "**打开看：http://<host>:5190**（…）".
+Never put a bare URL directly next to `**`, `_`, `~`, or full-width punctuation such as `（`, `：`, `，`. GFM extends a bare URL until the next space, so it swallows the closing `**` and the bold breaks. Leave URLs unbolded and put a space after them, or wrap them as `<http://…>` or `[label](http://…)`. For example, write "**Open：** http://<host>:5190 （…）", not "**Open：http://<host>:5190**（…）".
 
 ## English coaching
 
