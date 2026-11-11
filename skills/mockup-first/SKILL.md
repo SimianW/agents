@@ -25,12 +25,11 @@ If you are a delegated agent and your brief says the mockup is already approved,
 
 When a GitHub issue carries the spec, the approved mockup travels with it as a GitHub issue artifact (not a claude.ai Artifact), because `mockups/` is local and often gitignored:
 
-- Run `gh --version` first. `gh issue artifact` needs `gh` 2.103 or later.
+- Run `gh --version` first. `gh issue artifact` needs `gh` 2.103 or later; upgrade `gh` if it is older.
 - Attach it: `gh issue artifact create <issue> mockups/<slug>.html#Mockup`. It becomes an HTML artifact that GitHub renders in a sandbox, so it must stay self-contained.
-- On older `gh`, attach it through the API instead. Write `{"type": "embedded_html", "name": "Mockup", "body": "<the file's HTML>"}` to a JSON file, then run `gh api -X POST -H "X-GitHub-Api-Version: 2026-03-10" repos/<owner>/<repo>/issues/<issue>/artifacts --input <file>.json`. Read it back from the list, since fetching one artifact by number fails: `gh api -H "X-GitHub-Api-Version: 2026-03-10" repos/<owner>/<repo>/issues/<issue>/artifacts --jq '.[] | select(.number==<n>) | .body'`.
-- In the issue body, name the `Mockup` artifact as the visual spec, with the command to read it. A builder in any checkout fetches it with `gh issue artifact download`, or with the API read above.
+- In the issue body, name the `Mockup` artifact as the visual spec. A builder in any checkout fetches it with `gh issue artifact download`.
 - After each later round of approved changes, update the same artifact with `gh issue artifact edit <issue> <artifact-number> --body-file mockups/<slug>.html`, so its version history records the design.
-- If both routes fail (the feature is in public preview), add a screenshot to the issue body with `gh issue edit <issue> --attach <png>` and say so to the user.
+- If `gh issue artifact` fails (the feature is in public preview), add a screenshot to the issue body with `gh issue edit <issue> --attach <png>` and say so to the user.
 
 ## Delegating the build
 
