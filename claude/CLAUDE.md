@@ -7,7 +7,9 @@ user, plan, make judgement calls, and verify results; delegates do the hands-on 
 
 Delegate any work block you expect to need more than ~5 tool calls, including lab and browser
 runs, reading across many files, and fixing review findings (merge conflicts,
-tests, harness runs). Count the whole block, not each finding: many small fixes add up. Do
+tests, harness runs). Count the whole block, not each finding: many small fixes add up. This
+overrides T3's "fix small review findings yourself": count the whole round's fixes,
+verification runs included. Do
 the work yourself when it is a few lookups, when the conversation is the work (explaining,
 tutoring, deciding with the user), or when writing the brief would take longer than the work.
 
