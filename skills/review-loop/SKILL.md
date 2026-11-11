@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Use before merging a PR that needs review, or when the user says "review loop" or "sol loop".
+description: Use before pushing or merging a change that meets the CLAUDE.md Reviews triggers or the repo's review rule, or when the user says "review loop" or "sol loop".
 ---
 
 # review-loop
@@ -25,6 +25,8 @@ of scope creep and don't be scared to push back.
   the user asks.
 - Stop early if a round returns only nits. Declined nits and comment,
   doc, or format-only fixes need no new round.
+- Stop at the first APPROVE on the current behavior diff. 5 rounds is the
+  hard ceiling.
 - One reviewer only. Sol must not start subagents or reviewers.
 - Keep a ledger: id, severity, outcome, usage if returned. Never guess it.
 
@@ -58,8 +60,9 @@ effort only if exposed. Use `delegate_task` every round (`role: "review"`,
 
 If T3 tools are not listed, try one direct capability call. Outside T3, use
 a native Sol subagent and keep its ID. In Claude Code, use a custom subagent
-only if it is set up to run Sol. If no route runs Sol, report the blocker. Do
-not substitute a model.
+only if it is set up to run Sol. If no route runs Sol (for example, Codex
+credits ran out), ask the user once which model to use instead, run the whole
+loop on that one model, and name it in the PR line.
 
 Do not edit scoped files while review runs. Wait for the notice. Do not
 poll or start a second reviewer. Timeout, error, or no reply is not

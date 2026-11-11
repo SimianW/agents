@@ -38,6 +38,21 @@ re-derive any claim you will repeat to the user.
 ### Reviews
 
 When the repo's AGENTS.md or CLAUDE.md sets a review rule, follow it instead of this section.
-Otherwise, your own verification is enough by default. For risky or large changes, have a fresh Sol review the work: send the spec, the diff reference and the done-check, but not your conclusions. Triage the findings yourself. Fix findings directly only when all of them together take a few tool calls; otherwise send them back to the author as one task. Review again only if the fixes were substantial.
+
+Otherwise, run the `review-loop` skill before you push or merge a change that:
+
+- touches auth, sessions, secrets, permissions, payments, or the privacy of user data;
+- adds or edits a database migration or schema, or deletes data;
+- changes deploy, CI, Docker/compose, hooks, cron/launchd/systemd, or sync and install scripts;
+- changes a public API, CLI or config format that other code or machines depend on;
+- changes more than ~300 lines of behavior code (not counting generated, vendored, moved or
+  imported files, prose, or throwaway prototypes).
+
+For anything else, your own verification is enough. If you skip review on a change close to one
+of these lines, say so in one line of your report.
+
+`review-loop` is the only review process. When `implement` or `implement-spec` says to run
+`code-review`, run `review-loop` instead. Run `code-review` only when the user or the repo asks
+for it.
 
 @~/.agents/AGENTS.md
