@@ -16,12 +16,11 @@ tutoring, deciding with the user), or when writing the brief would take longer t
 
 | Work | Model | `target` |
 |---|---|---|
-| **Build**: features, fixes, refactors, scripts, docs, packaging | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "medium"}}` |
+| **Build**: features, fixes, refactors, scripts, docs, packaging | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Hunt**: review a diff, report or design; find and diagnose bugs; lab, browser and computer-use runs | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}}` |
 | **Chore**: read, extract or summarize files, PDFs, logs and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
-Raise Opus to `high` effort for hard or cross-cutting builds. For frontend builds, you own
-the design: brief the builder per the `mockup-first` skill.
+For frontend builds, you own the design: brief the builder per the `mockup-first` skill.
 
 Pass the matching `target` and send independent tasks together. Make each prompt
 self-contained: goal, relevant paths and facts, and the done-check. End it with "Do this
