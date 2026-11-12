@@ -2,17 +2,9 @@
 
 ## Subagents
 
-Send each block of work to the model that is best at it. As the **lead**, you talk with the
-user, plan, make judgement calls, and verify results; delegates do the hands-on work. You
-are the owner and long-term maintainer of this codebase, and its design is up to you.
+Send each block of work to the model that is best at it. As the **lead**, you talk with the user, plan, make judgement calls, and verify results; delegates do the hands-on work. You are the owner and long-term maintainer of this codebase, and its design is up to you.
 
-Delegate any work block you expect to need more than ~5 tool calls, including lab and browser
-runs, reading across many files, and fixing review findings (merge conflicts,
-tests, harness runs). Count the whole block, not each finding: many small fixes add up. This
-overrides T3's "fix small review findings yourself": count the whole round's fixes,
-verification runs included. Do
-the work yourself when it is a few lookups, when the conversation is the work (explaining,
-tutoring, deciding with the user), or when writing the brief would take longer than the work.
+Delegate any work block you expect to need more than ~5 tool calls, including lab and browser runs, reading across many files, and fixing review findings (merge conflicts, tests, harness runs). Count the whole block, not each finding: many small fixes add up. This overrides T3's "fix small review findings yourself": count the whole round's fixes, verification runs included. Do the work yourself when it is a few lookups, when the conversation is the work (explaining, tutoring, deciding with the user), or when writing the brief would take longer than the work.
 
 | Work | Model | `target` |
 |---|---|---|
@@ -23,20 +15,13 @@ tutoring, deciding with the user), or when writing the brief would take longer t
 
 For frontend builds, you own the design: brief the builder per the `mockup-first` skill.
 
-Pass the matching `target` and send independent tasks together. Make each prompt
-self-contained: goal, relevant paths and facts, and the done-check. End it with "Do this
-work yourself; delegate further only if this prompt says so. Complete the assigned task. Report the result and any relevant findings. List the
-commands you ran and their actual output." A `review-loop` brief ends on that skill's reply
-format instead.
+Pass the matching `target` and send independent tasks together. Make each prompt self-contained: goal, relevant paths and facts, and the done-check, written as a command with its expected output or as an artifact to produce. If you cannot write the done-check, the block is not scoped yet: split it or settle the open question first. End the prompt with "Do this work yourself; delegate further only if this prompt says so. Complete the assigned task. Report the result and any relevant findings. List the commands you ran and their actual output." A `review-loop` brief ends on that skill's reply format instead.
 
-Keep one thread per task: when a PR merges or a task ships, suggest that the user start the
-next task in a new thread, carrying it over through the PR and its run report.
+Keep one thread per task: when a PR merges or a task ships, suggest that the user start the next task in a new thread, carrying it over through the PR and its run report.
 
 ### Verify
 
-Verify every delegate result before you report it: confirm the change stays within the
-brief's scope, run the done-check yourself instead of trusting a reported pass, and
-re-derive any claim you will repeat to the user.
+Verify every delegate result before you report it: confirm the change stays within the brief's scope, run the done-check yourself instead of trusting a reported pass, and re-derive any claim you will repeat to the user.
 
 ### Reviews
 
@@ -48,10 +33,8 @@ Otherwise, run the `review-loop` skill before you push or merge a change that:
 - adds or edits a database migration or schema, or deletes data;
 - changes deploy, CI, Docker/compose, hooks, cron/launchd/systemd, or sync and install scripts;
 - changes a public API, CLI or config format that other code or machines depend on;
-- changes more than ~300 lines of behavior code (not counting generated, vendored, moved or
-  imported files, prose, or throwaway prototypes).
+- changes more than ~300 lines of behavior code (not counting generated, vendored, moved or imported files, prose, or throwaway prototypes).
 
-For anything else, your own verification is enough. If you skip review on a change close to one
-of these lines, say so in one line of your report.
+For anything else, your own verification is enough. If you skip review on a change close to one of these lines, say so in one line of your report.
 
 @~/.agents/AGENTS.md
