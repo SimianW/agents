@@ -8,7 +8,7 @@ description: Use before pushing or merging a change that meets the CLAUDE.md Rev
 This is a workflow for making your code changes more correct before (or
 sometimes after) filing a pull request: a reviewer model checks the diff in a
 loop. The reviewer runs the model in the **Hunt** row of the global CLAUDE.md
-table. A final pass by Fable 5.2 follows the reviewer's approval.
+table. A final pass by Opus 5.5 follows the reviewer's approval.
 
 Make the most minimal possible changes to appease the reviewers. Be careful
 of scope creep and don't be scared to push back.
@@ -28,7 +28,7 @@ of scope creep and don't be scared to push back.
   doc, or format-only fixes need no new round.
 - Stop at the first APPROVE on the current behavior diff. 5 rounds is the
   hard ceiling.
-- After the reviewer approves, a final Fable pass (step 5) has its own budget: 2 rounds
+- After the reviewer approves, a final Opus pass (step 5) has its own budget: 2 rounds
   (tier 1, or the default), 3 (tier 2, or an extended loop). Tier 0 gets none.
 - One reviewer at a time. Reviewers must not start subagents or reviewers.
 - Keep a ledger: id, severity, outcome, usage if returned. Never guess it.
@@ -128,17 +128,17 @@ diff, and the change since last round. Tell the reviewer: open ids and changed
 code only, and list each old id under `### Earlier findings` as `resolved` or
 `still open: <reason>`.
 
-## 5. Final Fable pass
+## 5. Final Opus pass
 
-Once the reviewer approves, run one more full review with Fable 5.2 on high effort
-(T3 target: `{"providerInstanceId": "claudeAgent", "model": "claude-fable-5-2",
-"options": {"effort": "high"}}`). Send the round 1 brief with the full base
-diff, plus the ledger so Fable skips settled ids, and tell Fable to number its
+Once the reviewer approves, run one more full review with Opus 5.5 on extra-high effort
+(T3 target: `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5",
+"options": {"effort": "xhigh"}}`). Send the round 1 brief with the full base
+diff, plus the ledger so Opus skips settled ids, and tell Opus to number its
 findings F1, F2, ... Answer its findings as in
-step 3. If you fix a blocker or should, the next Fable round checks open ids and
-changed code only; it does not go back to the reviewer. Fable's APPROVE on the current
+step 3. If you fix a blocker or should, the next Opus round checks open ids and
+changed code only; it does not go back to the reviewer. Opus's APPROVE on the current
 behavior diff closes the loop. Skip this pass when the whole loop already ran on
-Fable.
+Opus 5.5.
 
 ## 6. Stop and ship
 
@@ -155,7 +155,7 @@ if the body has none):
 
 ```markdown
 - **Verdict:** approved at `<sha>`
-- **Reviewers:** <model> ×<N> → <fable model> ×<M>
+- **Reviewers:** <model> ×<N> → <final model> ×<M>
 
 <details>
 <summary>Findings: <n> fixed, <n> declined</summary>
@@ -171,7 +171,7 @@ if the body has none):
 Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
 the short hash of the commit holding the diff the last reviewer approved. A
 later commit that changes behavior needs a new loop and a new `<sha>`. Drop
-`→ <fable model> ×<M>` when the whole loop ran on one model, and the
+`→ <final model> ×<M>` when the whole loop ran on one model, and the
 `<details>` block when no reviewer raised a finding.
 
 To enforce this in a repo's CI, copy `scripts/check-pr-body.py` from this
@@ -181,7 +181,7 @@ workflow at the bottom of that file. Its `tier` mode prints the Tier item.
 Report to the user in this shape:
 
 ```markdown
-**Review loop: approved** at `<sha>` · <N> rounds <model>, <M> <fable model> · pushed: yes|no
+**Review loop: approved** at `<sha>` · <N> rounds <model>, <M> <final model> · pushed: yes|no
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
