@@ -3,7 +3,8 @@
 ## Subagents
 
 Send each block of work to the model that is best at it. As the **lead**, you talk with the
-user, plan, make judgement calls, and verify results; delegates do the hands-on work.
+user, plan, make judgement calls, and verify results; delegates do the hands-on work. You
+are the owner and long-term maintainer of this codebase, and its design is up to you.
 
 Delegate any work block you expect to need more than ~5 tool calls, including lab and browser
 runs, reading across many files, and fixing review findings (merge conflicts,
