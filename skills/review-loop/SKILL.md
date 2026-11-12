@@ -147,6 +147,11 @@ blocker or should open, no concern of your own. Stuck: an item stays disputed
 after two replies, or budget ends. Show both sides in 2-3 lines each. The user
 decides. Budget end is not approval.
 
+Override: if, after a stuck report, the user explicitly says to ship anyway,
+the user is the last reviewer and the current behavior diff counts as
+approved. Never override on your own. Mark each open item `overridden` in the
+ledger and append `→ <user> (override)` to the Reviewers item.
+
 Do not push during the loop. Push after agreement only if the user asked
 to push, ship, or update the PR. If you push to a PR, add the Verdict and
 Reviewers items and a folded ledger under the body's `## Review` section, after
@@ -169,7 +174,8 @@ if the body has none):
 ```
 
 Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
-the short hash of the commit holding the diff the last reviewer approved. A
+the short hash of the commit holding the diff the last reviewer (or the
+overriding user) approved. A
 later commit that changes behavior needs a new loop and a new `<sha>`. Drop
 `→ <final model> ×<M>` when the whole loop ran on one model, and the
 `<details>` block when no reviewer raised a finding.
@@ -194,4 +200,5 @@ Report to the user in this shape:
 ```
 
 A stuck loop reads **Review loop: stuck** instead, and the disputed items
-follow.
+follow. An overridden loop reads **Review loop: approved (override)**, and
+its `overridden` items stay in the table.
