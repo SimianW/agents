@@ -23,7 +23,8 @@ The check enforces:
 1. The first Tier item gives N in 0..MAX_TIER, and N is at least the tier computed from the changed
    files against base.
 2. When the computed tier is at least REVIEW_FROM_TIER, the last Verdict item reads
-   `approved at <sha>` (7 to 40 hex digits, backticks optional), the sha exists in this checkout,
+   `approved at <sha>` or `overridden by <user> at <sha>` (7 to 40 hex digits, backticks optional;
+   the override form records a person shipping a stuck review-loop), the sha exists in this checkout,
    and nothing changed after it reaches REVIEW_FROM_TIER. The approved commit is replayed onto the
    current base with `git merge-tree` (git 2.40+), so a later merge or rebase of the base branch
    does not count as a change. When the replay conflicts, the check compares against the sha
@@ -91,7 +92,7 @@ def classify_special(path, base_rev, root):
 # --------------------------------------------------------------------------------------------
 
 TIER_ITEM = re.compile(r"[-*] \*\*Tier:\*\* ([0-9]+)")
-VERDICT_ITEM = re.compile(r"[-*] \*\*Verdict:\*\* approved at (`?)([0-9a-fA-F]{7,40})\1")
+VERDICT_ITEM = re.compile(r"[-*] \*\*Verdict:\*\* (approved|overridden by [^`@\s]+) at (`?)([0-9a-fA-F]{7,40})\2")
 
 
 class GitError(Exception):
@@ -150,12 +151,12 @@ def check_body(body, tier, reasons, review_gate, head):
         passes.append(f"tier {tier} needs no Verdict item")
         return failures, passes
 
-    approved = [m.group(2) for m in map(VERDICT_ITEM.fullmatch, lines) if m]
-    if not approved:
+    verdicts = [m for m in map(VERDICT_ITEM.fullmatch, lines) if m]
+    if not verdicts:
         failures.append(f"tier {tier} needs a Verdict item; add `- **Verdict:** approved at {head}` after review-loop approves")
         return failures, passes
-    sha = approved[-1]
-    passes.append(f"Verdict: approved at {sha}")
+    verdict, sha = verdicts[-1].group(1), verdicts[-1].group(3)
+    passes.append(f"Verdict: {verdict} at {sha}")
     gate_failures, gate_passes = review_gate(sha)
     return failures + gate_failures, passes + gate_passes
 

@@ -149,8 +149,9 @@ decides. Budget end is not approval.
 
 Override: if, after a stuck report, the user explicitly says to ship anyway,
 the user is the last reviewer and the current behavior diff counts as
-approved. Never override on your own. Mark each open item `overridden` in the
-ledger and append `→ <user> (override)` to the Reviewers item.
+approved. Never override on your own. Write the Verdict as
+`overridden by <user> at <sha>`, with the user's login and no `@`, and mark
+each open item `overridden` in the ledger.
 
 Do not push during the loop. Push after agreement only if the user asked
 to push, ship, or update the PR. If you push to a PR, add the Verdict and
@@ -159,11 +160,11 @@ its Tier item (layout in the `pr` skill; add the section above the model blurb
 if the body has none):
 
 ```markdown
-- **Verdict:** approved at `<sha>`
+- **Verdict:** approved at `<sha>` | overridden by <user> at `<sha>`
 - **Reviewers:** <model> ×<N> → <final model> ×<M>
 
 <details>
-<summary>Findings: <n> fixed, <n> declined</summary>
+<summary>Findings: <n> fixed, <n> declined, <n> overridden</summary>
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
@@ -174,8 +175,8 @@ if the body has none):
 ```
 
 Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
-the short hash of the commit holding the diff the last reviewer (or the
-overriding user) approved. A
+the short hash of the commit holding the diff the last reviewer approved or
+the user overrode. Drop `, <n> overridden` when there is no override. A
 later commit that changes behavior needs a new loop and a new `<sha>`. Drop
 `→ <final model> ×<M>` when the whole loop ran on one model, and the
 `<details>` block when no reviewer raised a finding.
