@@ -58,7 +58,7 @@ Write every mathematical formula in LaTeX, including formulas in chat replies. U
 
 ## Steering files
 
-`~/.agents` (this file, `skills/`, `claude/CLAUDE.md`) is a git checkout of `SimianW/agents`, shared by all of the user's machines. When you edit a file there, commit and push it in the same task. Before you run the skills CLI, read `~/.agents/README.md`.
+`~/.agents` (this file, `skills/`, `claude/CLAUDE.md`) is a git checkout of `SimianW/agents`, shared by all of the user's machines. When you edit a file there, commit and push it in the same task; `machine.md` is the one file git ignores, so it stays on this machine. Before you run the skills CLI, read `~/.agents/README.md`.
 
 ## Frontend changes
 
