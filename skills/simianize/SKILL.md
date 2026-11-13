@@ -15,7 +15,7 @@ Scaffold the per-repo files the workflow assumes, in six layers:
 - **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
 - **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
 
-The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask the user one question at a time with your recommended answer first, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
+The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask that step's questions together in one dialog, each led by your recommended answer, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
 
 ## 1. Base
 
@@ -25,7 +25,7 @@ First settle the **instructions file**. `AGENTS.md` holds the repo's instruction
 - Only `AGENTS.md` exists: create `CLAUDE.md`.
 - `CLAUDE.md` holds instructions of its own: ask the user whether to move them into `AGENTS.md` (recommended). If they decline, `CLAUDE.md` is the instructions file for this run.
 
-Then read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with one change: its `## Agent skills` block goes in the instructions file you just settled, in place of its own rule for picking or asking for a file. Every later step writes to that same file.
+Then read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with two changes. Its `## Agent skills` block goes in the instructions file you just settled, in place of its own rule for picking or asking for a file. And its sections are asked together in one dialog, as in every step here. Every later step writes to that same file.
 
 On a re-run, when the done-check below already passes, go to step 2.
 
@@ -39,6 +39,8 @@ Otherwise:
 
 1. Copy [check-pr-body.py](../review-loop/scripts/check-pr-body.py) to `scripts/check-pr-body.py`.
 2. Fill every `TODO(repo)` and rewrite the header docstring for this repo. Match the repo's tree against the tier 2 list in the script's comment, then ask the user to confirm the tier 2 paths and the tier 0 paths.
+
+   Classify by **path**. A file that holds both risky and ordinary code is tier 2 as a whole. `classify_special` stays as the template has it, returning `None`, with its `TODO(repo)` taken out of the docstring; write a rule that reads a file's content only when the user asks for one, because such a rule is a heuristic that goes stale as the file changes.
 3. Write `.github/workflows/pr-body.yml` from the example at the bottom of the script. On another CI host, port the same job.
 4. Ask the user before you make `pr-body` a required check in branch protection: a repo setting is theirs to change.
 

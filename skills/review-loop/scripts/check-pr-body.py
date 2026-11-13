@@ -76,9 +76,11 @@ CHECKS_ONLY_SUFFIXES = (
 
 
 def classify_special(path, base_rev, root):
-    """TODO(repo): return (tier, reason) for a path that needs a closer look, or None.
+    """TODO(repo), optional: return (tier, reason) for a path that needs a closer look, or None.
 
-    Use it when a file's tier depends on what changed inside it. butter, for example, reads
+    Prefer the path lists above: put a file that mixes risky and ordinary code in HIGH_RISK_FILES.
+    A rule here is a heuristic that needs upkeep as the file changes, so write one only when a
+    file's tier must depend on what changed inside it. butter, for example, reads
     extension/manifest.json at base_rev and in the working tree: a change to `permissions` or
     `content_scripts` is tier 2, a change to `version` alone is tier 0, anything else is tier 1.
     Read the old content with git("show", f"{base_rev}:{path}", cwd=root) and the new content
