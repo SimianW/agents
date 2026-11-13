@@ -17,11 +17,17 @@ The repo's own files win. Each step adds what is missing and updates what an ear
 
 ## 1. Base
 
-Read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with one change: when `CLAUDE.md` only imports another file (`@AGENTS.md`), the imported file is the repo's instructions file, and the `## Agent skills` block goes there. Every later step writes to that same file.
+First settle the **instructions file**. `AGENTS.md` holds the repo's instructions and `CLAUDE.md` is the one line `@AGENTS.md`, so Claude Code and Codex read the same text:
+
+- Neither file exists: create both.
+- Only `AGENTS.md` exists: create `CLAUDE.md`.
+- `CLAUDE.md` holds instructions of its own: ask the user whether to move them into `AGENTS.md` (recommended). If they decline, `CLAUDE.md` is the instructions file for this run.
+
+Then read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with one change: its `## Agent skills` block goes in the instructions file you just settled, in place of its own rule for picking or asking for a file. Every later step writes to that same file.
 
 On a re-run, when the done-check below already passes, go to step 2.
 
-Done when: `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has the `## Agent skills` block, and the tracker has every label in `docs/agents/triage-labels.md`.
+Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has the `## Agent skills` block, and the tracker has every label in `docs/agents/triage-labels.md`.
 
 ## 2. Gate
 
@@ -54,4 +60,4 @@ Done when: the block has no `<blank>` left, and every path it names exists (`GLO
 
 ## 5. Ship
 
-Commit the setup on its own branch and ship it by the block you just wrote: this PR is the gate's first run. Report the files written, the files left alone, and what is left for the user to do by hand.
+Commit the setup on its own branch and ship it by the block you just wrote: this PR is the gate's first run. Report the files written, the files left alone, and what is left for the user to do by hand. Tell the user that `/ask-simian` says which of these files to edit for a later change.

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Ask Simian"
+  short_description: "Which workflow file is for what, and which to edit"
+policy:
+  allow_implicit_invocation: false
