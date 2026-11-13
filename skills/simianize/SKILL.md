@@ -15,7 +15,7 @@ Scaffold the per-repo files the workflow assumes, in six layers:
 - **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
 - **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
 
-The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask the user one question at a time with your recommended answer first, then show a draft of every file before you write it.
+The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask the user one question at a time with your recommended answer first, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
 
 ## 1. Base
 
@@ -59,7 +59,7 @@ Done when: no `TODO(repo)` remains in the script, `python3 scripts/pr-size.py` p
 ## 4. Seams
 
 1. **Standards.** When `CODING_STANDARDS.md` is missing, write it from [coding-standards.md](coding-standards.md).
-2. **Seams.** Find where the tests live and the commands that run them (test directories, package scripts, the CI workflow). Propose the seams in order of preference, cheapest first, each with one line on what it catches and what it misses, and ask the user to confirm the list. Write `docs/agents/seams.md` from [seams.md](seams.md). When another doc already lists the seams, move the list and leave a pointer in its place, so `seams.md` is the single source.
+2. **Seams.** Find where the tests live and the commands that run them (test directories, package scripts, the CI workflow). Propose the seams in order of preference, cheapest first, each with one line on what it catches and what it misses, and ask the user to confirm the list. Write `docs/agents/seams.md` from [seams.md](seams.md). When no CI workflow runs the repo's tests, ask the user whether to add one that runs the test command (recommended), so the seams file has a workflow to name. When another doc already lists the seams, move the list and leave a pointer in its place, so `seams.md` is the single source.
 3. **Bug fixes.** When `docs/bugfix.md` is missing, write it from [bugfix.md](bugfix.md), and ask the user how a bug is shown to be this repo's own (its Control step). When it exists, keep its steps and only point its seam list at `seams.md`.
 
 Done when: every seam in `docs/agents/seams.md` names a path that exists and a command that runs, and no other file lists the seams.
@@ -72,7 +72,7 @@ The Frontend bullet is for a repo with a user-visible frontend. Ask the user, re
 
 When the section exists, update it in place. A template bullet replaces the bullet on the same topic; sentences in it that are specific to this repo stay, and so do bullets the template lacks. Show the user the diff before you write.
 
-Done when: the block has no `<blank>` left, and every path it names exists (`GLOSSARY.md` excepted: the `domain-modeling` skill creates it on first use).
+Done when: the block has no `<blank>` left, and every path it names exists (`GLOSSARY.md` and `mockups/` excepted: the `domain-modeling` and `mockup-first` skills create them on first use).
 
 ## 6. Changelog
 
