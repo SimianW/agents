@@ -15,7 +15,7 @@ Find the user's question in the tables below, then read the file itself before y
 Every rule lives at one of four scopes. Settle the scope first; it picks the file.
 
 - **Everywhere**: the global steering in `~/.agents`, read in every session on every machine. Commit and push an edit there in the same task.
-- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy, so re-run `/simianize` in it to bring the change over.
+- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` and `## Changelog` sections and to the size script and its workflow. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
 - **This repo only**: the repo's own file.
 - **This machine only**: `~/.agents/machine.md`, which git does not track. Each machine has its own.
 
