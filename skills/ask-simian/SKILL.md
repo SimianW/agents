@@ -12,11 +12,12 @@ Find the user's question in the tables below, then read the file itself before y
 
 ## Scope
 
-Every rule lives at one of three scopes. Settle the scope first; it picks the file.
+Every rule lives at one of four scopes. Settle the scope first; it picks the file.
 
 - **Everywhere**: the global steering in `~/.agents`, read in every session on every machine. Commit and push an edit there in the same task.
 - **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy, so re-run `/simianize` in it to bring the change over.
 - **This repo only**: the repo's own file.
+- **This machine only**: `~/.agents/machine.md`, which git does not track. Each machine has its own.
 
 ## Which file to edit
 
@@ -33,7 +34,7 @@ Every rule lives at one of three scopes. Settle the scope first; it picks the fi
 | a decision that is hard to reverse | a new file in `docs/adr/`, with the `domain-modeling` skill | |
 | what `/simianize` sets up, or its order | | `simianize/SKILL.md` |
 
-These rules have one scope, everywhere:
+These rules live only in `~/.agents`:
 
 | To change | Edit |
 |---|---|
@@ -45,7 +46,8 @@ These rules have one scope, everywhere:
 | the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
 | how replies are written (bold, math, English tips, links to files) | `~/.agents/AGENTS.md` |
 | the mockup rule for frontend changes | `~/.agents/skills/mockup-first/SKILL.md` |
-| the host and bind address for local pages | `~/.agents/machine.md` (this machine only, not tracked) |
+| a fact or rule for this machine only: how you reach it, the local page address, its tools and paths | `~/.agents/machine.md` |
+| the headings a new machine's file starts from | `~/.agents/machine.example.md` |
 | how `~/.agents` syncs, or which upstream skills carry local edits | `~/.agents/README.md` |
 
 A skill that came from upstream (listed in `~/.agents/.skill-lock.json`) loses local edits on `npx skills update -g`. After editing one, list it in the README's "Upstream skills" section.
@@ -76,7 +78,8 @@ In `~/.agents`:
 |---|---|
 | `claude/CLAUDE.md` | Claude Code's global rules: delegation, Verify, Reviews |
 | `AGENTS.md` | global rules for Claude Code and Codex: reply formatting, English coaching, local pages, steering-file upkeep |
-| `machine.md` | this machine's `<host>` and `<bind>` |
+| `machine.md` | facts and rules for this machine only; not tracked |
+| `machine.example.md` | the headings a `machine.md` starts from |
 | `README.md` | how the checkout syncs across machines, and how upstream skills are updated |
 | `skills/simianize/` | `SKILL.md`, the setup steps; the other four files are the templates it writes from |
 | `skills/review-loop/` | `SKILL.md`, the review loop; `scripts/check-pr-body.py`, the gate's template |

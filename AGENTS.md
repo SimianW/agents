@@ -36,11 +36,17 @@ End the block with a `---` line. Start every bullet with `- `, because lines wit
 
 When prompting the user to edit files, always use `vim` instead of `nano`.
 
-## Local pages
+## This machine
 
-When asking the user to open a locally generated page, preview, or app, serve it at `http://<host>:<port>/<path>` and bind the server to `<bind>`. `~/.agents/machine.md` sets `<host>` and `<bind>` for this machine; when its content is not already in your context, read the file. If the file is missing, ask the user for both values and save them there. Verify the URL responds, and keep the server running while the user reviews it. Include the full clickable URL in the reply.
+`~/.agents/machine.md` holds what is true on this machine only: how the user reaches it, the values that other sections write in angle brackets (such as `<host>`), its tools and paths, and rules that apply only here. When its content is not already in your context, read the file before your first action. Where it is more specific than this file, follow it.
+
+Keep the file current. When a rule needs a value it lacks, ask the user for it; when the user tells you a lasting fact about this machine, confirm it belongs there. Then save it under the matching heading; `~/.agents/machine.example.md` shows the headings. For a secret, save where it is stored, never its value.
 
 @~/.agents/machine.md
+
+## Local pages
+
+When asking the user to open a locally generated page, preview, or app, serve it at `http://<host>:<port>/<path>` and bind the server to `<bind>`; `machine.md` sets both. Verify the URL responds, and keep the server running while the user reviews it. Include the full clickable URL in the reply.
 
 ## Sending files
 

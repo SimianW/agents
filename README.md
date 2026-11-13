@@ -10,7 +10,8 @@ Global steering for Claude Code and Codex, shared by every machine. This repo is
 | `.skill-lock.json` | the [skills CLI](https://github.com/vercel-labs/skills): where each upstream skill came from |
 | `bin/sync`, `systemd/`, `launchd/` | the timer (Linux) or launchd agent (macOS) that pulls this repo every 10 minutes |
 | `bin/session-check` | the SessionStart hook of Claude Code and Codex |
-| `machine.md` | not tracked; this machine's `<host>` and `<bind>` for local page URLs, used by `AGENTS.md` |
+| `machine.md` | not tracked; facts and rules for this machine only (access, local page address, tools and paths), imported by `AGENTS.md` ("This machine") |
+| `machine.example.md` | the headings a `machine.md` starts from |
 
 The symlinks, `machine.md`, the installed timer, the hook entries, and any machine-local skills live on each machine, outside git.
 
@@ -63,15 +64,10 @@ cd ~/.agents && git init -b main && git remote add origin git@github.com:SimianW
 #    Otherwise: git clone git@github.com:SimianW/agents.git ~/.agents
 #    Without a GitHub SSH key, use https://github.com/SimianW/agents.git with `gh auth setup-git`.
 
-# 2. Local page address (AGENTS.md, "Local pages"). Remote machine: <host> is the
-#    MagicDNS name (not `hostname`; `tailscale status --self --json` shows it as DNSName).
-cat > ~/.agents/machine.md <<'MD'
-This machine's values for local pages (see "Local pages" in AGENTS.md):
-
-- `<host>`: `<name>`, this machine's Tailscale MagicDNS name
-- `<bind>`: the Tailscale interface or `0.0.0.0`
-MD
-#    Machine the user sits at: `<host>` is `localhost` and `<bind>` is `127.0.0.1`.
+# 2. Machine file (AGENTS.md, "This machine"): copy the template, fill it in, and delete the
+#    headings you have nothing for. Remote machine: <host> is the MagicDNS name (not `hostname`;
+#    `tailscale status --self --json` shows it as DNSName).
+cp ~/.agents/machine.example.md ~/.agents/machine.md && vim ~/.agents/machine.md
 
 # 3. Symlinks:
 mkdir -p ~/.claude/skills ~/.codex
