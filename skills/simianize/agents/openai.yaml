@@ -1,5 +1,5 @@
 interface:
-  display_name: "Setup Workflow"
+  display_name: "Simianize"
   short_description: "Set up a repo for the PR-and-review workflow"
 policy:
   allow_implicit_invocation: false

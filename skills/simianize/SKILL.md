@@ -1,10 +1,10 @@
 ---
-name: setup-workflow
+name: simianize
 description: "Set up a repo for the PR-and-review workflow: Matt Pocock's skill config, the review-tier gate, test seams, the bug-fix steps, and the Workflow block in AGENTS.md. Re-run it to update a repo."
 disable-model-invocation: true
 ---
 
-# Setup workflow
+# Simianize
 
 Scaffold the per-repo files the workflow assumes, in four layers:
 
