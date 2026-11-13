@@ -1,3 +1,11 @@
+## This machine
+
+`~/.agents/machine.md` is part of these instructions and carries the same weight as this file. It holds what is true on this one machine: which machine this is and who the user is, how the user reaches it, which other machines it can reach and how, its tools and paths, the values that other sections write in angle brackets (such as `<host>`), and rules that apply only here. Its content is free-form and differs from machine to machine. When its content is not already in your context, read the whole file before your first action. Where it is more specific than this file, follow it.
+
+Keep the file current. When a rule needs a value it lacks, ask the user for it; when the user tells you a lasting fact about this machine, confirm it belongs there. Then save it under a fitting heading; `~/.agents/machine.example.md` suggests some. For a secret, save where it is stored, never its value.
+
+@~/.agents/machine.md
+
 ## Bold punctuation 
 
 Bold whole words only. Never open or close `**` inside a word, especially next to an apostrophe or other punctuation, because the bold won't render. For example, write "**what's**", not "what**'s**".
@@ -35,14 +43,6 @@ End the block with a `---` line. Start every bullet with `- `, because lines wit
 ## File editing
 
 When prompting the user to edit files, always use `vim` instead of `nano`.
-
-## This machine
-
-`~/.agents/machine.md` holds what is true on this machine only: how the user reaches it, the values that other sections write in angle brackets (such as `<host>`), its tools and paths, and rules that apply only here. When its content is not already in your context, read the file before your first action. Where it is more specific than this file, follow it.
-
-Keep the file current. When a rule needs a value it lacks, ask the user for it; when the user tells you a lasting fact about this machine, confirm it belongs there. Then save it under the matching heading; `~/.agents/machine.example.md` shows the headings. For a secret, save where it is stored, never its value.
-
-@~/.agents/machine.md
 
 ## Local pages
 

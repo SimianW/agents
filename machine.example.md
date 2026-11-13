@@ -1,10 +1,18 @@
 # This machine
 
+## Identity
+
+- This machine: `<name>`, <what it is and what it is for>
+- OS: <OS and version; say so when it runs inside WSL, a VM or a container>
+- The user: <who the user is here, when that changes what an agent does>
+
 ## Access
 
-- Name: `<name>`
-- OS: <OS and version; say so when it runs inside WSL, a VM or a container>
 - <How the user reaches it: sits at it, or connects from another device over Tailscale or SSH>
+
+## Other machines
+
+- `<name>`: <what it is>, reached with <an SSH alias, a Tailscale name, or a linked T3 environment>
 
 ## Local pages
 

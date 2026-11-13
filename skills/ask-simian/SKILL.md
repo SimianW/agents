@@ -46,7 +46,7 @@ These rules live only in `~/.agents`:
 | the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
 | how replies are written (bold, math, English tips, links to files) | `~/.agents/AGENTS.md` |
 | the mockup rule for frontend changes | `~/.agents/skills/mockup-first/SKILL.md` |
-| a fact or rule for this machine only: how you reach it, the local page address, its tools and paths | `~/.agents/machine.md` |
+| a fact or rule for this machine only: which machine it is, how you reach it, the other machines it reaches, the local page address, its tools and paths | `~/.agents/machine.md` |
 | the headings a new machine's file starts from | `~/.agents/machine.example.md` |
 | how `~/.agents` syncs, or which upstream skills carry local edits | `~/.agents/README.md` |
 
