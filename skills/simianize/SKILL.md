@@ -78,9 +78,19 @@ Done when: the block has no `<blank>` left, and every path it names exists (`GLO
 
 Ask the user whether this repo ships versioned releases whose changes users read. Recommend yes when the repo has a `CHANGELOG.md`, a version field or release tags, and no otherwise. On no, go to step 7.
 
-On yes, write the `## Changelog` section from [changelog.md](changelog.md) into the instructions file, with every `<blank>` filled: the repo's version format, and when an entry is written (ask the user). When the section exists, update it by step 5's rule. When `CHANGELOG.md` is missing, create it with a `# Changelog` title and no entries.
+On yes, ask when an entry is written, with these two options:
 
-Done when: the section has no `<blank>` left, and `CHANGELOG.md` exists.
+- **Unreleased per PR** (recommended): every PR with a change the user can notice adds its bullet under a standing `## [Unreleased]` heading, and the release PR renames that heading to the version. This is Keep a Changelog's own rule and what the template says; no change is forgotten at release time.
+- **With the version bump**: the entry is written in the PR that changes the version. Replace the template's Unreleased paragraph with "Add the entry in the PR that changes the version.", and take `## [Unreleased]` out of its heading sentence and its example.
+
+Then write the `## Changelog` section from [changelog.md](changelog.md) into the instructions file, with the `<blank>` filled by the repo's version format. When the section exists, update it by step 5's rule.
+
+Bring the repo in line with the choice:
+
+- `CHANGELOG.md`: create it with a `# Changelog` title when it is missing. On Unreleased per PR, its first `##` heading is `## [Unreleased]`: add the heading when it is not there.
+- On Unreleased per PR, find what else reads the top of `CHANGELOG.md` (a version check, a release script, the release steps in the instructions file) and update each in this same change, with its tests.
+
+Done when: the section has no `<blank>` left, `CHANGELOG.md` matches the choice, and every check the repo runs in CI passes locally.
 
 ## 7. Ship
 

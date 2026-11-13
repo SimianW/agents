@@ -1,17 +1,21 @@
 ## Changelog
 
-`CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): one entry per release, newest first, its changes grouped under `###` category headings. <When an entry is written, such as "Add the entry in the PR that changes the version.">
+`CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): one entry per release, newest first, below a standing `## [Unreleased]` heading; changes are grouped under `###` category headings.
+
+Every PR with a change the user can notice adds its bullet under `## [Unreleased]`, in that same PR. The release PR renames that heading to the version and date, and leaves a new, empty `## [Unreleased]` above it.
 
 ```markdown
+## [Unreleased]
+
+### Fixed
+
+- Fixed a crash when opening settings.
+
 ## [<a version in this repo's format>] - YYYY-MM-DD
 
 ### Changed
 
 - Redesigned the settings page: ...
-
-### Fixed
-
-- Fixed a crash when opening settings.
 ```
 
 Use these categories, in this order, and only the ones the release has:

@@ -31,7 +31,7 @@ Every rule lives at one of four scopes. Settle the scope first; it picks the fil
 | a rule reviewers must enforce | `CODING_STANDARDS.md` | `simianize/coding-standards.md` |
 | where tests go, or the checks to run before a PR | `docs/agents/seams.md` | `simianize/seams.md` |
 | the bug-fix steps | `docs/bugfix.md` | `simianize/bugfix.md` |
-| how changelog entries are written | `AGENTS.md`, `## Changelog` | `simianize/changelog.md` |
+| how changelog entries are written, and when | `AGENTS.md`, `## Changelog` | `simianize/changelog.md` |
 | where issues live, and the commands for them | `docs/agents/issue-tracker.md` | upstream `setup-matt-pocock-skills` |
 | the triage label names | `docs/agents/triage-labels.md`, and the labels on the tracker | upstream `setup-matt-pocock-skills` |
 | a domain term | `GLOSSARY.md`, with the `domain-modeling` skill | |
@@ -66,8 +66,8 @@ In a repo:
 | `CLAUDE.md` | the one line `@AGENTS.md` | Claude Code |
 | `AGENTS.md`, `## Agent skills` | pointers to the three `docs/agents/` files below | every engineering skill |
 | `AGENTS.md`, `## Workflow` | the PR gate, PR size, reviews, naming, the frontend rule, new features, subagent models, and pointers to seams and bug fixes | every session |
-| `AGENTS.md`, `## Changelog` | the rules for writing a release's entry; only in a repo that ships versioned releases | any release |
-| `CHANGELOG.md` | the entries themselves, one per release | users |
+| `AGENTS.md`, `## Changelog` | how a changelog bullet is written, and when; only in a repo that ships versioned releases | any PR the user can notice, and any release |
+| `CHANGELOG.md` | the entries themselves: `## [Unreleased]` on top, then one per release | users |
 | `docs/agents/issue-tracker.md` | where issues live and the commands for them | `to-spec`, `to-tickets`, `implement`, `triage`, `code-review` |
 | `docs/agents/triage-labels.md` | the label string for each triage role | `triage`, `to-spec`, `to-tickets` |
 | `docs/agents/domain.md` | how to read `GLOSSARY.md` and the ADRs | skills that explore the code |
