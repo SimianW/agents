@@ -24,6 +24,9 @@ Every rule lives at one of four scopes. Settle the scope first; it picks the fil
 | To change | This repo | Every repo from now on |
 |---|---|---|
 | the PR and merge rule, or the new-feature flow | `AGENTS.md`, `## Workflow` | `simianize/workflow.md` |
+| whether a repo needs a mockup first, its UI language, or where its design tokens are | `AGENTS.md`, `## Workflow`, the Frontend bullet | `simianize/workflow.md` |
+| the PR size thresholds, or which paths count as code | the settings at the top of `scripts/pr-size.py` | `simianize/pr-size.py` |
+| when the size label is set, or how CI sets it | `.github/workflows/pr-size.yml` | `simianize/pr-size.yml` |
 | which paths need more or less review | the settings at the top of `scripts/check-pr-body.py` (or the repo's own `scripts/review-tier.py`) | `review-loop/scripts/check-pr-body.py` |
 | a rule reviewers must enforce | `CODING_STANDARDS.md` | `simianize/coding-standards.md` |
 | where tests go, or the checks to run before a PR | `docs/agents/seams.md` | `simianize/seams.md` |
@@ -46,7 +49,8 @@ These rules live only in `~/.agents`:
 | the PR body layout | `~/.agents/skills/pr/SKILL.md` |
 | the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
 | how replies are written (bold, math, English tips, links to files) | `~/.agents/AGENTS.md` |
-| the mockup rule for frontend changes | `~/.agents/skills/mockup-first/SKILL.md` |
+| how a mockup is built, approved and verified | `~/.agents/skills/mockup-first/SKILL.md` |
+| the mockup rule for a repo that is not set up | `~/.agents/AGENTS.md`, Frontend changes |
 | a fact or rule for this machine only: which machine it is, how you reach it, the other machines it reaches, the local page address, its tools and paths | `~/.agents/machine.md` |
 | the headings a new machine's file starts from | `~/.agents/machine.example.md` |
 | how `~/.agents` syncs, or which upstream skills carry local edits | `~/.agents/README.md` |
@@ -61,7 +65,7 @@ In a repo:
 |---|---|---|
 | `CLAUDE.md` | the one line `@AGENTS.md` | Claude Code |
 | `AGENTS.md`, `## Agent skills` | pointers to the three `docs/agents/` files below | every engineering skill |
-| `AGENTS.md`, `## Workflow` | the PR gate, reviews, naming, new features, subagent models, and pointers to seams and bug fixes | every session |
+| `AGENTS.md`, `## Workflow` | the PR gate, PR size, reviews, naming, the frontend rule, new features, subagent models, and pointers to seams and bug fixes | every session |
 | `AGENTS.md`, `## Changelog` | the rules for writing a release's entry; only in a repo that ships versioned releases | any release |
 | `CHANGELOG.md` | the entries themselves, one per release | users |
 | `docs/agents/issue-tracker.md` | where issues live and the commands for them | `to-spec`, `to-tickets`, `implement`, `triage`, `code-review` |
@@ -74,6 +78,8 @@ In a repo:
 | `docs/adr/` | decisions that are hard to reverse | skills that explore the code |
 | `scripts/check-pr-body.py` | the tier of each path, and the check on a PR body's Review section | `review-loop`, CI |
 | `.github/workflows/pr-body.yml` | runs that check on every ready PR | CI |
+| `scripts/pr-size.py` | the size label for a change, and which paths count as code | CI; anyone, locally |
+| `.github/workflows/pr-size.yml` | sets the size label on every PR | CI |
 
 In `~/.agents`:
 
@@ -84,7 +90,7 @@ In `~/.agents`:
 | `machine.md` | facts and rules for this machine only; not tracked |
 | `machine.example.md` | the headings a `machine.md` starts from |
 | `README.md` | how the checkout syncs across machines, and how upstream skills are updated |
-| `skills/simianize/` | `SKILL.md`, the setup steps; the other five files are the templates it writes from |
+| `skills/simianize/` | `SKILL.md`, the setup steps; every other file is a template it writes from |
 | `skills/review-loop/` | `SKILL.md`, the review loop; `scripts/check-pr-body.py`, the gate's template |
 | `skills/pr/SKILL.md` | the PR body template, with the Review section |
 | other `skills/<name>/` | one skill each; `/ask-matt` maps the ones from `mattpocock/skills` |
