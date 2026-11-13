@@ -6,12 +6,13 @@ disable-model-invocation: true
 
 # Simianize
 
-Scaffold the per-repo files the workflow assumes, in four layers:
+Scaffold the per-repo files the workflow assumes, in five layers:
 
 - **Base**: the issue tracker, triage labels and domain docs that Matt Pocock's engineering skills read.
 - **Gate**: the review-tier script and the `pr-body` CI check that the `review-loop` and `pr` skills write for.
 - **Seams**: the test seams agreed once for this repo, and the bug-fix steps built on them.
 - **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
+- **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
 
 The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask the user one question at a time with your recommended answer first, then show a draft of every file before you write it.
 
@@ -58,6 +59,14 @@ When the section exists, update it in place. A template bullet replaces the bull
 
 Done when: the block has no `<blank>` left, and every path it names exists (`GLOSSARY.md` excepted: the `domain-modeling` skill creates it on first use).
 
-## 5. Ship
+## 5. Changelog
+
+Ask the user whether this repo ships versioned releases whose changes users read. Recommend yes when the repo has a `CHANGELOG.md`, a version field or release tags, and no otherwise. On no, go to step 6.
+
+On yes, write the `## Changelog` section from [changelog.md](changelog.md) into the instructions file, with every `<blank>` filled: the repo's version format, and when an entry is written (ask the user). When the section exists, update it by step 4's rule. When `CHANGELOG.md` is missing, create it with a `# Changelog` title and no entries.
+
+Done when: the section has no `<blank>` left, and `CHANGELOG.md` exists.
+
+## 6. Ship
 
 Commit the setup on its own branch and ship it by the block you just wrote: this PR is the gate's first run. Report the files written, the files left alone, and what is left for the user to do by hand. Tell the user that `/ask-simian` says which of these files to edit for a later change.
