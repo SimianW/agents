@@ -183,7 +183,7 @@ later commit that changes behavior needs a new loop and a new `<sha>`. Drop
 
 To enforce this in a repo's CI, copy `scripts/check-pr-body.py` from this
 skill into the repo's `scripts/`, fill its `TODO(repo)` blanks, and add the
-workflow at the bottom of that file. Its `tier` mode prints the Tier item.
+workflow at the bottom of that file. Its `tier` mode prints `Review tier: N`.
 
 Report to the user in this shape:
 

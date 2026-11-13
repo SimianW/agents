@@ -6,7 +6,7 @@ in CI on every pull request (example workflow at the bottom of this file).
 
 Two modes:
 
-    python3 scripts/check-pr-body.py tier [base]          # print the tier of HEAD's changes
+    python3 scripts/check-pr-body.py tier [base]          # print `Review tier: N` for HEAD's changes
     PR_BODY=... python3 scripts/check-pr-body.py [base]   # check a PR body (CI)
 
 `base` defaults to DEFAULT_BASE. The PR body records the review as a Markdown list, by convention
@@ -211,7 +211,7 @@ def main(argv):
             return 1
         tier, reasons = classify(paths, merge_base, root)
         if tier_mode:
-            print(f"- **Tier:** {tier}")
+            print(f"Review tier: {tier}")
             print("\n".join(reasons))
             return 0
         head = git("rev-parse", "--short", "HEAD", cwd=root).strip()

@@ -42,7 +42,7 @@ Otherwise:
 3. Write `.github/workflows/pr-body.yml` from the example at the bottom of the script. On another CI host, port the same job.
 4. Ask the user before you make `pr-body` a required check in branch protection: a repo setting is theirs to change.
 
-Done when: no `TODO(repo)` remains in the script, and `python3 scripts/check-pr-body.py tier` prints `- **Tier:** 2`, because this change adds the gate itself.
+Done when: no `TODO(repo)` remains in the script, and `python3 scripts/check-pr-body.py tier` prints `Review tier: 2`, because this change adds the gate itself.
 
 ## 3. Size
 
