@@ -8,9 +8,9 @@ Delegate any work block you expect to need more than ~5 tool calls, including la
 
 | Work | Model | `target` |
 |---|---|---|
-| **Build**: features, fixes, refactors, scripts; any build that needs design decisions or spans several modules | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
+| **Build**: features, fixes, refactors, scripts; diagnosing and fixing a bug the user reports, as one block; any build that needs design decisions or spans several modules | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Build-light**: docs, packaging, small scripts, edits whose brief lists every change | Sonnet | `{"providerInstanceId": "claudeAgent", "model": "claude-sonnet-5-5", "options": {"effort": "medium"}}` |
-| **Hunt**: review a diff, report or design; find and diagnose bugs; lab, browser and computer-use runs | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}}` |
+| **Hunt**: review a diff, report or design; find bugs no one has reported yet (audits); lab, browser and computer-use runs | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}}` |
 | **Chore**: read, extract or summarize files, PDFs, logs and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
 For frontend builds, you own the design: brief the builder per the `mockup-first` skill.
