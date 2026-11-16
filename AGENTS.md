@@ -1,32 +1,65 @@
 ## This machine
 
-`~/.agents/machine.md` is part of these instructions and carries the same weight as this file. It holds what is true on this one machine: which machine this is and who the user is, how the user reaches it, which other machines it can reach and how, its tools and paths, the values that other sections write in angle brackets (such as `<host>`), and rules that apply only here. Its content is free-form and differs from machine to machine. When its content is not already in your context, read the whole file before your first action. Where it is more specific than this file, follow it.
+`~/.agents/machine.md` is part of these instructions and carries the same weight as this file. It holds what is true on this one machine:
 
-Keep the file current. When a rule needs a value it lacks, ask the user for it; when the user tells you a lasting fact about this machine, confirm it belongs there. Then save it under a fitting heading; `~/.agents/machine.example.md` suggests some. For a secret, save where it is stored, never its value.
+- which machine this is and who the user is;
+- how the user reaches it, and which other machines it can reach and how;
+- its tools and paths;
+- the values that other sections write in angle brackets, such as `<host>`;
+- rules that apply only here.
+
+Its content is free-form and differs from machine to machine.
+
+- **Read it first.** When its content is not already in your context, read the whole file before your first action.
+- **Let it override.** Where it is more specific than this file, follow it.
+- **Keep it current.**
+  - When a rule needs a value the file lacks, ask the user for the value, then save it.
+  - When the user tells you a lasting fact about this machine, confirm it belongs there, then save it.
+  - Save each entry under a fitting heading; `~/.agents/machine.example.md` suggests some.
+  - For a secret, save where it is stored, **never its value**.
 
 @~/.agents/machine.md
 
-## Bold punctuation 
+## Bold punctuation
 
-Bold whole words only. Never open or close `**` inside a word, especially next to an apostrophe or other punctuation, because the bold won't render. For example, write "**what's**", not "what**'s**".
+- **Bold whole words only.** Never open or close `**` inside a word, especially next to an apostrophe or other punctuation, because the bold won't render.
+- **Keep bare URLs away from markup.** Never put a bare URL directly next to `**`, `_`, `~`, or full-width punctuation such as `（`, `：`, `，`. GFM extends a bare URL until the next space, so it swallows the closing `**` and the bold breaks. Leave the URL unbolded and put a space after it, or wrap it as `<http://…>` or `[label](http://…)`.
 
-Never put a bare URL directly next to `**`, `_`, `~`, or full-width punctuation such as `（`, `：`, `，`. GFM extends a bare URL until the next space, so it swallows the closing `**` and the bold breaks. Leave URLs unbolded and put a space after them, or wrap them as `<http://…>` or `[label](http://…)`. For example, write "**Open：** http://<host>:5190 （…）", not "**Open：http://<host>:5190**（…）".
+| Case | Write | Not |
+|---|---|---|
+| Word | `**what's**` | `what**'s**` |
+| URL | `**Open：** http://<host>:5190 （…）` | `**Open：http://<host>:5190**（…）` |
 
 ## English coaching
 
-The user is learning English. When their message has a spelling, word-choice, phrasing, or grammar mistake, start the reply with an **English tips** block, then answer normally. Write the block only when it has at least one concrete correction; every bullet shows a change.
+The user is learning English. When their message has a spelling, word-choice, phrasing, or grammar mistake, start the reply with an **English tips** block, then answer normally.
 
-Focus on mistakes other than capitalization. Ignore lowercase sentence beginnings, lowercase "i", and capitalization of names, languages, products, acronyms, or technical terms. When correcting another mistake, preserve the user's capitalization in the quoted correction. If capitalization is the only issue, skip the English tips block.
+**Scope**
 
-Write one bullet per mistake, most important first, at most three. Each bullet has three parts, in this order:
+- Write the block only when it has at least one concrete correction; every bullet shows a change.
+- Leave capitalization alone: lowercase sentence beginnings, lowercase "i", and the capitalization of names, languages, products, acronyms, or technical terms. If capitalization is the only issue, skip the block. When correcting another mistake, preserve the user's capitalization in the quoted correction.
+- Code, commands, and pasted content are outside the block's scope.
 
-1. What the user wrote, in quotes. Bold only the words that the correction removes or replaces. If the mistake is only a missing word, nothing in the quote is bold.
-2. An arrow (→) and the corrected version. Bold only the words that were added or replaced.
-3. An en dash (–) and one short, plain sentence that says what changed and why.
+**Layout**
 
-A word that is the same in both versions is never bold, even when it sits between two changes. Compare the two versions word by word before writing the bullet. When only punctuation changes, bold the punctuation together with the word it touches, such as "on exam **2 ?**" → "on exam **2?**".
+- One bullet per mistake, most important first, at most three.
+- Start every bullet with `- `, because lines without it get merged into one paragraph.
+- After `- ` comes the quote, never a category label such as "grammar" or "syntax"; the explanation names the actual problem instead.
+- End the block with a `---` line.
 
-Do not start a bullet with a category label such as "grammar" or "syntax". The explanation names the actual problem instead. Quote only as much of the sentence as is needed to see the mistake. Use plain quotes, not code formatting, so the bold shows.
+Each bullet has three parts, in this order:
+
+| # | Part | Bold only |
+|---|---|---|
+| 1 | What the user wrote, in quotes. Quote only as much of the sentence as is needed to see the mistake. | The words that the correction removes or replaces. If the mistake is only a missing word, nothing in the quote is bold. |
+| 2 | An arrow (→) and the corrected version. | The words that were added or replaced. |
+| 3 | An en dash (–) and one short, plain sentence that says what changed and why. | n/a |
+
+**Bolding**
+
+- A word that is the same in both versions is never bold, even when it sits between two changes. Compare the two versions word by word before writing the bullet.
+- When only punctuation changes, bold the punctuation together with the word it touches, such as "on exam **2 ?**" → "on exam **2?**".
+- Use plain quotes, not code formatting, so the bold shows.
 
 Example:
 
@@ -38,28 +71,43 @@ Example:
 ---
 ```
 
-End the block with a `---` line. Start every bullet with `- `, because lines without it get merged into one paragraph. Code, commands, and pasted content are outside the block's scope.
-
 ## File editing
 
-When prompting the user to edit files, always use `vim` instead of `nano`.
+When you ask the user to edit a file themselves, give the command with `vim`, not `nano`.
 
 ## Local pages
 
-When asking the user to open a locally generated page, preview, or app, serve it at `http://<host>:<port>/<path>` and bind the server to `<bind>`; `machine.md` sets both. Verify the URL responds, and keep the server running while the user reviews it. Include the full clickable URL in the reply.
+When asking the user to open a locally generated page, preview, or app:
+
+1. **Serve** it at `http://<host>:<port>/<path>` and bind the server to `<bind>`; `machine.md` sets `<host>` and `<bind>`.
+2. **Verify** that the URL responds.
+3. **Link** the full clickable URL in the reply.
+4. **Keep** the server running while the user reviews it.
 
 ## Sending files
 
-When the user asks you to send a file, link it in your reply as Markdown with its absolute path, such as `[name](/abs/path/file.pdf)`; T3 Code opens these links in its panel. Do not use attachment upload tools for this.
+When the user asks you to send a file, put a Markdown link to its absolute path in your reply, such as `[name](/abs/path/file.pdf)`; T3 Code opens these links in its panel. Do not use attachment upload tools for this.
 
 ## Math notation
 
-Write every mathematical formula in LaTeX, including formulas in chat replies. Use `$...$` for inline math and `$$...$$` for display math. Do not substitute Unicode symbols or plain-text notation such as `Σ`, `P_{i,j}^{(n)}` outside math delimiters, or `x^2`, even when the output may be shown in a terminal.
+Write every mathematical formula in LaTeX, including formulas in chat replies, and even when the output may be shown in a terminal. Use `$...$` for inline math and `$$...$$` for display math.
+
+Unicode symbols and plain-text notation are not substitutes:
+
+| Write | Not | Problem |
+|---|---|---|
+| `$\sum$` | `Σ` | Unicode symbol |
+| `$P_{i,j}^{(n)}$` | `P_{i,j}^{(n)}` | LaTeX outside math delimiters |
+| `$x^2$` | `x^2` | plain-text notation |
 
 ## Steering files
 
-`~/.agents` (this file, `skills/`, `claude/CLAUDE.md`) is a git checkout of `SimianW/agents`, shared by all of the user's machines. When you edit a file there, commit and push it in the same task; `machine.md` is the one file git ignores, so it stays on this machine. Before you run the skills CLI, read `~/.agents/README.md`.
+`~/.agents` (this file, `skills/`, `claude/CLAUDE.md`) is a git checkout of `SimianW/agents`, shared by all of the user's machines.
+
+- **Commit and push** every edit you make there, in the same task.
+- **Exception:** `machine.md` is the one file git ignores, so it stays on this machine.
+- **Skills CLI:** read `~/.agents/README.md` before you run it.
 
 ## Frontend changes
 
-Before any visible frontend change, use the `mockup-first` skill: show the user a mockup and wait for approval.
+Before any visible frontend change, use the `mockup-first` skill: show the user a mockup and **wait for approval**.
