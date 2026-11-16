@@ -14,6 +14,8 @@ Delegate any work block you expect to need more than ~5 tool calls, including la
 | **Drive**: lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse and keyboard) | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Chore**: read, extract or summarize files, PDFs, logs and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
+An audit that needs lab or browser runs is split: Sol plans it and judges the findings, and the runs go to Drive.
+
 For frontend builds, you own the design: brief the builder per the `mockup-first` skill.
 
 Pass the matching `target` and send independent tasks together. Make each prompt self-contained: goal, relevant paths and facts, and the done-check, written as a command with its expected output or as an artifact to produce. If you cannot write the done-check, the block is not scoped yet: split it or settle the open question first. End the prompt with "Do this work yourself; delegate further only if this prompt says so. Complete the assigned task. Report the result and any relevant findings. List the commands you ran and their actual output." A `review-loop` brief ends on that skill's reply format instead.
