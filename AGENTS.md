@@ -14,7 +14,7 @@ Its content is free-form and differs from machine to machine.
 - **Let it override.** Where it is more specific than this file, follow it.
 - **Keep it current.**
   - When a rule needs a value the file lacks, ask the user for the value, then save it.
-  - When the user tells you a lasting fact about this machine, confirm it belongs there, then save it.
+  - When the user tells you a lasting fact about this machine, confirm it belongs to this machine, then save it.
   - Save each entry under a fitting heading; `~/.agents/machine.example.md` suggests some.
   - For a secret, save where it is stored, **never its value**.
 
