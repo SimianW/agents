@@ -10,8 +10,8 @@ Delegate any work block you expect to need more than ~5 tool calls, including la
 |---|---|---|
 | **Build**: features, fixes, refactors, scripts; diagnosing and fixing a bug the user reports, as one block; any build that needs design decisions or spans several modules | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Build-light**: docs, packaging, small scripts, edits whose brief lists every change | Sonnet | `{"providerInstanceId": "claudeAgent", "model": "claude-sonnet-5-5", "options": {"effort": "medium"}}` |
-| **Hunt**: reviews only: checking a diff, a report or a design someone else wrote | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}}` |
-| **Drive**: find bugs no one has reported yet (audits); lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse and keyboard) | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
+| **Hunt**: review a diff, a report or a design someone else wrote; find bugs no one has reported yet (audits) | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}}` |
+| **Drive**: lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse and keyboard) | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Chore**: read, extract or summarize files, PDFs, logs and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
 For frontend builds, you own the design: brief the builder per the `mockup-first` skill.
