@@ -111,3 +111,7 @@ Unicode symbols and plain-text notation are not substitutes:
 ## Frontend changes
 
 Before any visible frontend change, use the `mockup-first` skill: show the user a mockup and **wait for approval**.
+
+## Thread titles
+
+In T3 Code, after every user message, call `t3_thread_update` with `action: "regenerate_title"` on the current thread, so the title tracks the conversation. Make the call before your final reply. T3 Code writes the title with the user's title model and instructions.
