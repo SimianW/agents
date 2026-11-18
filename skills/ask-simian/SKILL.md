@@ -45,7 +45,7 @@ These rules live only in `~/.agents`:
 | which model does which kind of work | `~/.agents/claude/CLAUDE.md`, the Subagents table |
 | how a delegate's result is checked | `~/.agents/claude/CLAUDE.md`, Verify |
 | when a repo with no review rule needs a review | `~/.agents/claude/CLAUDE.md`, Reviews |
-| review rounds, the reviewer's brief, the final pass | `~/.agents/skills/review-loop/SKILL.md` |
+| review rounds, the panel models, the reviewer and cross-check briefs | `~/.agents/skills/review-loop/SKILL.md` |
 | the PR body layout | `~/.agents/skills/pr/SKILL.md` |
 | the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
 | how replies are written (bold, math, English tips, links to files) | `~/.agents/AGENTS.md` |
@@ -92,5 +92,6 @@ In `~/.agents`:
 | `README.md` | how the checkout syncs across machines, and how upstream skills are updated |
 | `skills/simianize/` | `SKILL.md`, the setup steps; every other file is a template it writes from |
 | `skills/review-loop/` | `SKILL.md`, the review loop; `scripts/check-pr-body.py`, the gate's template |
+| `skills/review-loop-deprecated/` | the old single-reviewer loop (Sol, then Opus); runs only when asked by name |
 | `skills/pr/SKILL.md` | the PR body template, with the Review section |
 | other `skills/<name>/` | one skill each; `/ask-matt` maps the ones from `mattpocock/skills` |
