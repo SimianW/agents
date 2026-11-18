@@ -80,8 +80,10 @@ Find the base after `git fetch origin`:
 
 The change is base to working tree in those paths, with untracked files.
 Use one diff command all rounds. State intent and out-of-scope in 1-2
-sentences. Run covering checks; send only code that passes them. Note
-missing or pre-failing checks in the brief.
+sentences. Run covering checks; send only code that passes them. If a check
+needs set-up (dependencies, browsers), do it before round 1 and say so in
+`Checks:`, so every seat can rerun it. Note missing or pre-failing checks in
+the brief.
 
 ## 2. Round 1: blind panel
 
@@ -105,7 +107,9 @@ Read surrounding code. Find bugs, broken callers, mismatch with intent.
 Skip formatting unless it hides a bug. Hold to the smallest change. Flag code,
 tests, or guards the intent does not need. Other paths, rare cases, small
 perf, extra compat: nits.
-blocker = intended case wrong. should = real bug callers will hit, in intent. nit = rest.
+blocker = intended case wrong. should = real bug on a real path, in intent. nit = rest.
+A real path is a user action or a call the repo's own code makes. A defect only
+tests or hand-built inputs reach is a nit unless the intent names that path.
 A standards rule sets its own severity when it names one.
 Every blocker or should needs evidence: a file:line trace of the failing path,
 a repro, or a failing test. Without evidence it counts as a nit.
@@ -135,6 +139,11 @@ stable across rounds; write "None." under Findings when there are none.
 - Findings with the same root cause become one `L` id that lists every seat
   id.
 - Found by two or more seats: **confirmed**; no cross-check.
+- Seats that agree on a finding but not its severity: set it yourself from
+  the evidence. Lowering a seat's blocker or should needs your own evidence
+  (repro, trace) in the ledger. If you cannot settle it, add the severity
+  question to the cross-check call of a seat that did not raise it; with
+  none left, you decide.
 - Solo blocker or should: goes to cross-check. Solo nit: you decide alone.
 
 ## 4. Cross-check
@@ -171,7 +180,9 @@ finding, with evidence.
 
 ## 5. Fix
 
-Fix every confirmed finding in one batch:
+Confirmed means real; severity sets the action. Fix every confirmed blocker
+and should in one batch. A nit, confirmed or not, is declined unless it is a
+one-line change inside the intent.
 
 - Agree: smallest fix. Prefer delete or narrow over new lock, cache,
   helper, or option. Fix the case that happened. Add one focused test
@@ -179,7 +190,7 @@ Fix every confirmed finding in one batch:
   mandatory. Show it failing on the old code.
 - Disagree: mark `disputed` and write why, with evidence (file:line, test,
   output).
-- Out of scope or nit: decline in one line. List as follow-up.
+- Out of scope: decline in one line. List as follow-up.
 
 Update the ledger. Re-run checks and `git diff --shortstat <base>`. If
 review grew the diff, cut first. Agree only on the evidence, never to end
@@ -190,11 +201,17 @@ the loop.
 Start one only if budget remains and behavior code changed in step 5 or a
 finding is `disputed`. Start every seat in parallel with a fresh call: the
 round 1 brief, the ledger (`fixed:` / `disputed:` / `declined:` + evidence),
-the same base diff, and the change since last round. Each seat's scope is
-its own ids that are fixed, open, or disputed, plus the change since last
-round. Each seat lists those ids under `### Earlier findings` as `resolved`
-or `still open: <reason>`, and raises new findings only in changed code.
-New findings go through steps 3-5.
+the same base diff, and the change since last round. Each seat's scope is:
+
+- its own ids that are fixed, open, or disputed;
+- its own blockers and shoulds you declined or downgraded, so it can answer;
+- the change since last round.
+
+Each seat lists its ids under `### Earlier findings` as `resolved` or
+`still open: <reason>`; a seat with no ids writes `None.` there and reviews
+only the change. A decline the seat still contests with new evidence becomes
+`disputed`. Seats raise new findings only in changed code; those go through
+steps 3-5.
 
 ## 7. Stop and ship
 
