@@ -114,4 +114,4 @@ Before any visible frontend change, use the `mockup-first` skill: show the user 
 
 ## Thread titles
 
-In T3 Code, after every user message, call `t3_thread_update` with `action: "regenerate_title"` on the current thread, so the title tracks the conversation. Make the call before your final reply. T3 Code writes the title with the user's title model and instructions.
+In T3 Code, after every user message, call `t3_thread_update` with `action: "regenerate_title"` on the current thread, so the title tracks the conversation. Make the call in your first batch of tool calls, alongside any independent calls, so it adds no extra round trip and the title updates while you work; never leave it until after your final reply. T3 Code writes the title with the user's title model and instructions.
