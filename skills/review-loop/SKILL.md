@@ -20,7 +20,7 @@ creep, and push back with evidence.
 |---|---|---|---|
 | Sol | `gpt-6.2-sol`, high | `S` | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high"}}` |
 | Opus | `claude-opus-5-5`, high | `O` | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
-| Flash | `gemini-3.8-flash`, high | `F` | `{"providerInstanceId": "antigravity", "model": "gemini-3.8-flash", "options": {"thought_level": "high"}}` |
+| Neon | `gemini-4-neon`, high | `N` | `{"providerInstanceId": "antigravity", "model": "gemini-4-neon", "options": {"thought_level": "high"}}` |
 
 This table sets the reviewers for this skill, in place of the CLAUDE.md
 Hunt row. Swap a seat only when the user names another model.
@@ -42,7 +42,7 @@ report and PR.
 
 One row per merged finding, kept from round 1 to the report:
 
-- `L` id, and the seat ids it merges (`L1` = `S1`, `F2`);
+- `L` id, and the seat ids it merges (`L1` = `S1`, `N2`);
 - severity: `blocker`, `should`, or `nit`;
 - found by, and cross-check result (confirmed by / refuted by);
 - outcome: `open`, `fixed`, `disputed`, `declined`, or `overridden`;
@@ -238,14 +238,14 @@ body has none):
 
 ```markdown
 - **Verdict:** approved at `<sha>` | overridden by <user> at `<sha>`
-- **Reviewers:** gpt-6.2-sol ×<a>, claude-opus-5-5 ×<b>, gemini-3.8-flash ×<c>
+- **Reviewers:** gpt-6.2-sol ×<a>, claude-opus-5-5 ×<b>, gemini-4-neon ×<c>
 
 <details>
 <summary>Findings: <n> fixed, <n> declined, <n> overridden</summary>
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
-| L1 (S1, F2) | blocker | fixed | `<file>:<line>` <claim, one line> |
+| L1 (S1, N2) | blocker | fixed | `<file>:<line>` <claim, one line> |
 | L2 (O1) | nit | declined | <claim>: <reason> |
 
 </details>
@@ -265,11 +265,11 @@ workflow at the bottom of that file. Its `tier` mode prints `Review tier: N`.
 Report to the user in this shape:
 
 ```markdown
-**Review loop: approved** at `<sha>` · <N> rounds · Sol ×<a>, Opus ×<b>, Flash ×<c> · pushed: yes|no
+**Review loop: approved** at `<sha>` · <N> rounds · Sol ×<a>, Opus ×<b>, Neon ×<c> · pushed: yes|no
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
-| L1 (S1, F2) | blocker | fixed | <claim, one line> |
+| L1 (S1, N2) | blocker | fixed | <claim, one line> |
 | L2 (O1) | nit | declined | <claim>: <reason> |
 
 **Diff:** <shortstat before> → <shortstat after>
