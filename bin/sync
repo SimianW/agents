@@ -1,5 +1,6 @@
 #!/bin/sh
-# Run by the agents-sync timer: pull ~/.agents and keep ~/.claude/skills links in step with skills/.
+# Run by the agents-sync timer: pull ~/.agents, keep ~/.claude/skills links in step with skills/,
+# and link Antigravity's global rules and skills in ~/.gemini to this repo.
 set -eu
 A="$HOME/.agents"
 L="$HOME/.claude/skills"
@@ -13,5 +14,15 @@ done
 for l in "$L"/*; do
   if [ -L "$l" ] && [ ! -e "$l" ]; then
     case "$(readlink "$l")" in ../../.agents/skills/*) rm "$l" ;; esac
+  fi
+done
+# Antigravity reads global rules from ~/.gemini/AGENTS.md and skills from ~/.gemini/config/skills.
+# T3 Code runs it with a private --gemini-dir and links both of these into it at session start.
+G="$HOME/.gemini"
+mkdir -p "$G/config"
+for p in "AGENTS.md:$A/AGENTS.md" "config/skills:$A/skills"; do
+  l="$G/${p%%:*}" t="${p#*:}"
+  if [ ! -e "$l" ] && [ ! -L "$l" ]; then ln -s "$t" "$l"
+  elif [ ! "$l" -ef "$t" ]; then echo "agents-sync: $l exists and is not a link to $t; left as is" >&2
   fi
 done

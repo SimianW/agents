@@ -1,12 +1,12 @@
 # agents
 
-Global steering for Claude Code and Codex, shared by every machine. This repo is checked out at `~/.agents`.
+Global steering for Claude Code, Codex and Antigravity, shared by every machine. This repo is checked out at `~/.agents`.
 
 | Path | Read by |
 |---|---|
-| `AGENTS.md` | Claude Code through `@~/.agents/AGENTS.md` in `claude/CLAUDE.md`; Codex through the symlink `~/.codex/AGENTS.md` |
+| `AGENTS.md` | Claude Code through `@~/.agents/AGENTS.md` in `claude/CLAUDE.md`; Codex through the symlink `~/.codex/AGENTS.md`; Antigravity through the symlink `~/.gemini/AGENTS.md` |
 | `claude/CLAUDE.md` | Claude Code, through the symlink `~/.claude/CLAUDE.md` |
-| `skills/<name>/` | Codex directly; Claude Code through the symlinks `~/.claude/skills/<name>` |
+| `skills/<name>/` | Codex directly; Claude Code through the symlinks `~/.claude/skills/<name>`; Antigravity through the symlink `~/.gemini/config/skills` |
 | `.skill-lock.json` | the [skills CLI](https://github.com/vercel-labs/skills): where each upstream skill came from |
 | `bin/sync`, `systemd/`, `launchd/` | the timer (Linux) or launchd agent (macOS) that pulls this repo every 10 minutes |
 | `bin/session-check` | the SessionStart hook of Claude Code and Codex |
@@ -25,7 +25,7 @@ cd ~/.agents && git add -A && git commit -m "..." && git pull --rebase && git pu
 
 ## Sync
 
-- **Pull**: on each machine, the `agents-sync` timer runs `bin/sync` every 10 minutes. It pulls with `--ff-only`, so it never overwrites local work, adds a `~/.claude/skills` link for every directory in `skills/`, and removes links whose target is gone. Check it on Linux with `systemctl --user list-timers agents-sync.timer` and `journalctl --user -u agents-sync`; on macOS with `launchctl print gui/$(id -u)/com.github.simianw.agents-sync` (`last exit code`) and `~/Library/Logs/agents-sync.log` (errors only).
+- **Pull**: on each machine, the `agents-sync` timer runs `bin/sync` every 10 minutes. It pulls with `--ff-only`, so it never overwrites local work, adds a `~/.claude/skills` link for every directory in `skills/`, and removes links whose target is gone. It also links `~/.gemini/AGENTS.md` to `AGENTS.md` and `~/.gemini/config/skills` to `skills/` for Antigravity. It never replaces an existing file there: it logs `agents-sync: <path> exists ...` instead, and you move that file's content into this repo, delete the file, and run `sh ~/.agents/bin/sync`. T3 Code runs Antigravity with a private `--gemini-dir` (`~/.t3/userdata/providers/antigravity/<hash>/`) and links those two paths from `~/.gemini` into it whenever it starts a session, so they reach T3's Antigravity too. Check it on Linux with `systemctl --user list-timers agents-sync.timer` and `journalctl --user -u agents-sync`; on macOS with `launchctl print gui/$(id -u)/com.github.simianw.agents-sync` (`last exit code`) and `~/Library/Logs/agents-sync.log` (errors only).
 - **Push**: `AGENTS.md` tells agents to commit and push their edits here in the same task.
 - **Check**: at session start, `bin/session-check` tells the agent when this checkout has uncommitted files, unpushed commits, or commits the timer could not pull. To resolve: commit or discard the uncommitted files, then `git pull --rebase && git push`.
 
