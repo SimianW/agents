@@ -44,7 +44,7 @@ These rules live only in `~/.agents`:
 |---|---|
 | which model does which kind of work | `~/.agents/claude/CLAUDE.md`, the Subagents table |
 | how a delegate's result is checked | `~/.agents/claude/CLAUDE.md`, Verify |
-| when a repo with no review rule needs a review | `~/.agents/claude/CLAUDE.md`, Reviews |
+| when a repo with no review rule needs a review | `~/.agents/AGENTS.md`, Reviews |
 | review rounds, the panel models, the reviewer and cross-check briefs | `~/.agents/skills/review-loop/SKILL.md` |
 | the PR body layout | `~/.agents/skills/pr/SKILL.md` |
 | the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
@@ -85,8 +85,8 @@ In `~/.agents`:
 
 | File | Holds |
 |---|---|
-| `claude/CLAUDE.md` | Claude Code's global rules: delegation, Verify, Reviews |
-| `AGENTS.md` | global rules for Claude Code and Codex: reply formatting, English coaching, local pages, steering-file upkeep |
+| `claude/CLAUDE.md` | Claude Code's global rules: delegation, Verify |
+| `AGENTS.md` | global rules for Claude Code and Codex: reply formatting, English coaching, local pages, steering-file upkeep, Reviews |
 | `machine.md` | facts and rules for this machine only; not tracked |
 | `machine.example.md` | the headings a `machine.md` starts from |
 | `README.md` | how the checkout syncs across machines, and how upstream skills are updated |

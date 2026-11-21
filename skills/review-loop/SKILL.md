@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Use before pushing or merging a change that meets the CLAUDE.md Reviews triggers or the repo's review rule, or when the user says "review loop".
+description: Use before pushing or merging a change that meets the AGENTS.md Reviews triggers or the repo's review rule, or when the user says "review loop".
 ---
 
 # review-loop

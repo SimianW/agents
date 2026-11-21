@@ -56,20 +56,4 @@ Verify every delegate result before you report it:
 - **Done-check:** run it yourself instead of trusting a reported pass.
 - **Claims:** re-derive any claim you will repeat to the user.
 
-### Reviews
-
-When the repo's AGENTS.md or CLAUDE.md sets a review rule, follow it instead of this section.
-
-Otherwise, run the `review-loop` skill before you push or merge a change that meets any of these triggers:
-
-| Trigger | The change |
-|---|---|
-| **Sensitive areas** | touches auth, sessions, secrets, permissions, payments, or the privacy of user data |
-| **Data** | adds or edits a database migration or schema, or deletes data |
-| **Infrastructure** | changes deploy, CI, Docker/compose, hooks, cron/launchd/systemd, or sync and install scripts |
-| **Interfaces** | changes a public API, CLI or config format that other code or machines depend on |
-| **Size** | changes more than ~300 lines of behavior code (not counting generated, vendored, moved or imported files, prose, or throwaway prototypes) |
-
-For anything else, your own verification is enough. If you skip review on a change close to one of these triggers, say so in one line of your report.
-
 @~/.agents/AGENTS.md

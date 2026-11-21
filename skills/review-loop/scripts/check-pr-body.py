@@ -49,7 +49,7 @@ DEFAULT_BASE = "origin/main"  # TODO(repo): the base branch the PRs target.
 MAX_TIER = 2  # Tiers run 0..MAX_TIER. 0: checks only; 1: ordinary code; 2: high risk.
 REVIEW_FROM_TIER = 1  # Changes at this tier or above need a review-loop Verdict.
 
-# Tier 2: paths where a mistake is costly. Match the "Reviews" triggers in the global CLAUDE.md:
+# Tier 2: paths where a mistake is costly. Match the "Reviews" triggers in the global AGENTS.md:
 # auth, sessions, secrets, permissions, payments, user-data privacy, migrations and schema, data
 # deletion, deploy, CI, Docker/compose, hooks, cron/launchd/systemd, sync and install scripts,
 # and public APIs, CLIs or config formats other code depends on.
