@@ -15,7 +15,7 @@ Find the user's question in the tables below, then read the file itself before y
 Every rule lives at one of four scopes. Settle the scope first; it picks the file.
 
 - **Everywhere**: the global steering in `~/.agents`, read in every session on every machine. Commit and push an edit there in the same task.
-- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` and `## Changelog` sections and to the size script and its workflow. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
+- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` and `## Changelog` sections and to the size and file-length scripts and their workflows. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
 - **This repo only**: the repo's own file.
 - **This machine only**: `~/.agents/machine.md`, which git does not track. Each machine has its own.
 
@@ -27,6 +27,8 @@ Every rule lives at one of four scopes. Settle the scope first; it picks the fil
 | whether a repo needs a mockup first, its UI language, or where its design tokens are | `AGENTS.md`, `## Workflow`, the Frontend bullet | `simianize/workflow.md` |
 | the PR size thresholds, or which paths count as code | the settings at the top of `scripts/pr-size.py` | `simianize/pr-size.py` |
 | when the size label is set, or how CI sets it | `.github/workflows/pr-size.yml` | `simianize/pr-size.yml` |
+| the file length limit, or a file's cap | the settings at the top of `scripts/file-length.py` | `simianize/file-length.py` |
+| how CI runs the file-length check | `.github/workflows/file-length.yml` | `simianize/file-length.yml` |
 | which paths need more or less review | the settings at the top of `scripts/check-pr-body.py` (or the repo's own `scripts/review-tier.py`) | `review-loop/scripts/check-pr-body.py` |
 | a rule reviewers must enforce | `CODING_STANDARDS.md` | `simianize/coding-standards.md` |
 | where tests go, or the checks to run before a PR | `docs/agents/seams.md` | `simianize/seams.md` |
@@ -80,6 +82,8 @@ In a repo:
 | `.github/workflows/pr-body.yml` | runs that check on every ready PR | CI |
 | `scripts/pr-size.py` | the size label for a change, and which paths count as code | CI; anyone, locally |
 | `.github/workflows/pr-size.yml` | sets the size label on every PR | CI |
+| `scripts/file-length.py` | the length limit for code files, and the cap of each file over it | CI; anyone, locally |
+| `.github/workflows/file-length.yml` | runs the file-length check on every PR and push to the default branch | CI |
 
 In `~/.agents`:
 

@@ -1,6 +1,6 @@
 ---
 name: simianize
-description: "Set up a repo for the PR-and-review workflow: Matt Pocock's skill config, the review-tier gate, PR size labels, test seams, the bug-fix steps, and the Workflow block in AGENTS.md. Re-run it to update a repo."
+description: "Set up a repo for the PR-and-review workflow: Matt Pocock's skill config, the review-tier gate, PR size labels, the file-length ratchet, test seams, the bug-fix steps, and the Workflow block in AGENTS.md. Re-run it to update a repo."
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,7 @@ Scaffold the per-repo files the workflow assumes, in six layers:
 
 - **Base**: the issue tracker, triage labels and domain docs that Matt Pocock's engineering skills read.
 - **Gate**: the review-tier script and the `pr-body` CI check that the `review-loop` and `pr` skills write for.
-- **Size**: the CI job that labels every PR by the lines of code it changes.
+- **Size**: the CI jobs that label every PR by the lines of code it changes and hold every code file to a length limit.
 - **Seams**: the test seams agreed once for this repo, and the bug-fix steps built on them.
 - **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
 - **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
@@ -48,15 +48,17 @@ Done when: no `TODO(repo)` remains in the script, and `python3 scripts/check-pr-
 
 ## 3. Size
 
-CI labels every PR by the lines of code it changes, on the Kubernetes scale (`size/XS` to `size/XXL`). Only code counts: prose, lock files and binary files are left out.
+CI labels every PR by the lines of code it changes, on the Kubernetes scale (`size/XS` to `size/XXL`), and holds every code file to a length limit. Only code counts: prose, lock files and binary files are left out. `pr-size.py` holds that definition of code, and `file-length.py` reads it from there.
 
 1. Copy [pr-size.py](pr-size.py) to `scripts/pr-size.py` and fill every `TODO(repo)`. Propose the paths in this repo that are not code (docs, notes, generated or vendored output, results), and ask the user to confirm them.
 2. Copy [pr-size.yml](pr-size.yml) to `.github/workflows/pr-size.yml`. On another CI host, port the same job.
 3. Create each label that `python3 scripts/pr-size.py --labels` prints and the tracker lacks.
+4. **File length.** A repo that already enforces file length (ESLint `max-lines`, say) keeps its own check: skip substeps 4 and 5. Otherwise copy [file-length.py](file-length.py) to `scripts/file-length.py`. Run `python3 scripts/file-length.py --caps`, show the user the files it caps at their current length, and ask them to confirm `MAX_LINES` (500 recommended). Paste the output for the confirmed limit over `CAPS`, and take out its `TODO(repo)`. Caps only ratchet down: the check fails when a capped file shrinks and its cap stays.
+5. Copy [file-length.yml](file-length.yml) to `.github/workflows/file-length.yml`, with its `TODO(repo)` filled by the default branch. On another CI host, port the same job.
 
-On a re-run, keep the repo's settings at the top of the script and bring over the rest of the template.
+On a re-run, keep the repo's settings at the top of each script (`MAX_LINES` and `CAPS` among them) and bring over the rest of the templates.
 
-Done when: no `TODO(repo)` remains in the script, `python3 scripts/pr-size.py` prints a `size/` label followed by a file list that holds only code, and the tracker has all six labels.
+Done when: no `TODO(repo)` remains in the scripts or workflows, `python3 scripts/pr-size.py` prints a `size/` label followed by a file list that holds only code, the tracker has all six labels, and `python3 scripts/file-length.py` prints `file-length: ok…` and exits 0 (or the repo's own length check passes).
 
 ## 4. Seams
 

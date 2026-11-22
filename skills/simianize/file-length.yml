@@ -1,0 +1,20 @@
+name: File length
+
+on:
+  pull_request:
+  push:
+    branches: [main] # TODO(repo): the default branch.
+
+permissions:
+  contents: read
+
+jobs:
+  file-length:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Check every code file's length
+        run: python3 scripts/file-length.py
