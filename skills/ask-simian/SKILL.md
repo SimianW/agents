@@ -15,7 +15,7 @@ Find the user's question in the tables below, then read the file itself before y
 Every rule lives at one of four scopes. Settle the scope first; it picks the file.
 
 - **Everywhere**: the global steering in `~/.agents`, read in every session on every machine. Commit and push an edit there in the same task.
-- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` and `## Changelog` sections and to the size and file-length scripts and their workflows. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
+- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` section, to `docs/agents/changelog.md` and to the size and file-length scripts and their workflows. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
 - **This repo only**: the repo's own file.
 - **This machine only**: `~/.agents/machine.md`, which git does not track. Each machine has its own.
 
@@ -33,7 +33,7 @@ Every rule lives at one of four scopes. Settle the scope first; it picks the fil
 | a rule reviewers must enforce | `CODING_STANDARDS.md` | `simianize/coding-standards.md` |
 | where tests go, or the checks to run before a PR | `docs/agents/seams.md` | `simianize/seams.md` |
 | the bug-fix steps | `docs/bugfix.md` | `simianize/bugfix.md` |
-| how changelog entries are written, and when | `AGENTS.md`, `## Changelog` | `simianize/changelog.md` |
+| how changelog entries are written, and when | `docs/agents/changelog.md`, and the Changelog bullet in `## Workflow` | `simianize/changelog.md` |
 | where issues live, and the commands for them | `docs/agents/issue-tracker.md` | upstream `setup-matt-pocock-skills` |
 | the triage label names | `docs/agents/triage-labels.md`, and the labels on the tracker | upstream `setup-matt-pocock-skills` |
 | a domain term | `GLOSSARY.md`, with the `domain-modeling` skill | |
@@ -67,8 +67,8 @@ In a repo:
 |---|---|---|
 | `CLAUDE.md` | the one line `@AGENTS.md` | Claude Code |
 | `AGENTS.md`, `## Agent skills` | pointers to the three `docs/agents/` files below | every engineering skill |
-| `AGENTS.md`, `## Workflow` | the PR gate, PR size, reviews, naming, the frontend rule, new features, subagent models, and pointers to seams and bug fixes | every session |
-| `AGENTS.md`, `## Changelog` | how a changelog bullet is written, and when; only in a repo that ships versioned releases | any PR the user can notice, and any release |
+| `AGENTS.md`, `## Workflow` | the PR gate, PR size, reviews, naming, the frontend rule, new features, subagent models, and pointers to seams, bug fixes, the developer doc and the changelog rules | every session |
+| `docs/agents/changelog.md` | how a changelog bullet is written, and when; only in a repo that ships versioned releases, behind the Changelog bullet in `## Workflow` | any PR the user can notice, and any release |
 | `CHANGELOG.md` | the entries themselves: `## [Unreleased]` on top, then one per release | users |
 | `docs/agents/issue-tracker.md` | where issues live and the commands for them | `to-spec`, `to-tickets`, `implement`, `triage`, `code-review` |
 | `docs/agents/triage-labels.md` | the label string for each triage role | `triage`, `to-spec`, `to-tickets` |

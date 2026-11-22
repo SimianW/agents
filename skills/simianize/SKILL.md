@@ -15,7 +15,7 @@ Scaffold the per-repo files the workflow assumes, in six layers:
 - **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
 - **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
 
-The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays as it is. In each step, explore first, then ask that step's questions together in one dialog, each led by your recommended answer, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
+The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays the repo's own. The instructions file is read on every turn, so keep in it what every task needs and move the rest behind pointers (step 5). In each step, explore first, then ask that step's questions together in one dialog, each led by your recommended answer, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
 
 ## 1. Base
 
@@ -24,6 +24,8 @@ First settle the **instructions file**. `AGENTS.md` holds the repo's instruction
 - Neither file exists: create both.
 - Only `AGENTS.md` exists: create `CLAUDE.md`.
 - `CLAUDE.md` holds instructions of its own: ask the user whether to move them into `AGENTS.md` (recommended). If they decline, `CLAUDE.md` is the instructions file for this run.
+
+Note the instructions file's line count for step 7's report (0 when you just created it).
 
 Then read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with two changes. Its `## Agent skills` block goes in the instructions file you just settled, in place of its own rule for picking or asking for a file. And its sections are asked together in one dialog, as in every step here. Every later step writes to that same file.
 
@@ -70,11 +72,13 @@ Done when: every seam in `docs/agents/seams.md` names a path that exists and a c
 
 ## 5. Block
 
-Write the `## Workflow` section from [workflow.md](workflow.md) into the instructions file, after `## Agent skills`, with every `<blank>` filled: the base branch, the tier command from step 2, and the length limit, where the caps live and the check command from step 3 (`500`, `CAPS` in `scripts/file-length.py` and `python3 scripts/file-length.py`, or the repo's own check).
+Write the `## Workflow` section from [workflow.md](workflow.md) into the instructions file, after `## Agent skills`, with every `<blank>` filled: the base branch, the tier command from step 2, the length limit, where the caps live and the check command from step 3 (`500`, `CAPS` in `scripts/file-length.py` and `python3 scripts/file-length.py`, or the repo's own check), and the developer doc that lists the test commands (`docs/development.md`, say; with no such doc, leave the Dev docs bullet out).
 
 The Frontend bullet is for a repo with a user-visible frontend. Ask the user, recommending yes when the repo has UI files (HTML, CSS, components); on yes, fill its blanks from the repo, and on no, leave the bullet out.
 
 When the section exists, update it in place. A template bullet replaces the bullet on the same topic; sentences in it that are specific to this repo stay, and so do bullets the template lacks. Show the user the diff before you write.
+
+Then look at the file's other sections. Offer to move each section that only some tasks need (versioning, a lab, an API contract) into `docs/agents/<topic>.md`, leaving a pointer that names when to read it ("read [docs/agents/releasing.md](docs/agents/releasing.md) before you change the version or tag a release"). Recommend the move for such a section over about 15 lines. A line every task needs stays inline, and so does a fact the user may mention in passing, such as another name for a build.
 
 Done when: the block has no `<blank>` left, and every path it names exists (`GLOSSARY.md` and `mockups/` excepted: the `domain-modeling` and `mockup-first` skills create them on first use).
 
@@ -87,15 +91,29 @@ On yes, ask when an entry is written, with these two options:
 - **Unreleased per PR** (recommended): every PR with a change the user can notice adds its bullet under a standing `## [Unreleased]` heading, and the release PR renames that heading to the version. This is Keep a Changelog's own rule and what the template says; no change is forgotten at release time.
 - **With the version bump**: the entry is written in the PR that changes the version. Replace the template's Unreleased paragraph with "Add the entry in the PR that changes the version.", and take `## [Unreleased]` out of its heading sentence and its example.
 
-Then write the `## Changelog` section from [changelog.md](changelog.md) into the instructions file, with the `<blank>` filled by the repo's version format. When the section exists, update it by step 5's rule.
+Then write `docs/agents/changelog.md` from [changelog.md](changelog.md), with the `<blank>` filled by the repo's version format, and add its pointer to the `## Workflow` block:
+
+On Unreleased per PR:
+
+```markdown
+- Changelog: every PR with a change the user can notice adds a bullet under `## [Unreleased]` in `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) before you write one.
+```
+
+On With the version bump:
+
+```markdown
+- Changelog: the PR that changes the version adds its entry to `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) before you write it.
+```
+
+When `docs/agents/changelog.md` exists, update it by step 5's rule; a pointer to it elsewhere in the instructions file counts as the bullet. When the instructions file has a `## Changelog` section (an earlier run's), move it into `docs/agents/changelog.md`, keeping its sentences specific to the repo, and leave the bullet in its place.
 
 Bring the repo in line with the choice:
 
 - `CHANGELOG.md`: create it with a `# Changelog` title when it is missing. On Unreleased per PR, its first `##` heading is `## [Unreleased]`: add the heading when it is not there.
 - On Unreleased per PR, find what else reads the top of `CHANGELOG.md` (a version check, a release script, the release steps in the instructions file) and update each in this same change, with its tests.
 
-Done when: the section has no `<blank>` left, `CHANGELOG.md` matches the choice, and every check the repo runs in CI passes locally.
+Done when: `docs/agents/changelog.md` has no `<blank>` left, the instructions file has its pointer and no `## Changelog` section, `CHANGELOG.md` matches the choice, and every check the repo runs in CI passes locally.
 
 ## 7. Ship
 
-Commit the setup on its own branch and ship it by the block you just wrote: this PR is the first run of the gate and of the size label. Report the files written, the files left alone, and what is left for the user to do by hand. Tell the user that `/ask-simian` says which of these files to edit for a later change.
+Commit the setup on its own branch and ship it by the block you just wrote: this PR is the first run of the gate and of the size label. Report the files written, the files left alone, the instructions file's line count before the run and after, and what is left for the user to do by hand. Tell the user that `/ask-simian` says which of these files to edit for a later change.

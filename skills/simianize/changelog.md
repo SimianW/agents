@@ -1,4 +1,4 @@
-## Changelog
+# Changelog rules
 
 `CHANGELOG.md` follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/): one entry per release, newest first, below a standing `## [Unreleased]` heading; changes are grouped under `###` category headings.
 
