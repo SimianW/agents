@@ -55,8 +55,9 @@ a tool returns it. Never guess either.
 
 ## Budget
 
-- If the repo has `scripts/review-tier.py` or `scripts/check-pr-body.py`,
-  run its tier mode (`check-pr-body.py tier <base>`). Tier 0: no review.
+- If the repo has a tier script, run the tier command its Workflow block
+  names: `python3 scripts/review-tier.py [base]` or
+  `python3 scripts/check-pr-body.py tier [base]`. Tier 0: no review.
   Tier 1: up to 2 rounds. Tier 2: up to 3.
 - No tier script: 2 rounds; 3 for security, permissions, auth, data loss,
   or state/concurrency, or when the user asks.

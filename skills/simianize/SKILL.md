@@ -35,7 +35,15 @@ Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-track
 
 ## 2. Gate
 
-A repo that already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with a `tier` mode) keeps it: note its tier command for step 5 and go to step 3.
+A repo that already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with a `tier` mode) keeps it. Note the command that prints its tier for step 5 (`python3 scripts/review-tier.py [base]`, say), then audit that the gate covers itself. These **gate files** must each come out as tier 2, with no tier 0 rule (comment-only, docs, format) able to lower them:
+
+- the CI workflows (`.github/workflows/`, or the CI host's equivalent);
+- the tier script and the PR-body check;
+- every helper they run whose answer can lower a tier, such as a script that decides when a change is comment-only.
+
+Show the user each gate file that falls short, and offer to make it tier 2, with a test for each in the script's own tests. Change only those rules; the rest of the script stays the repo's own. Then go to step 3.
+
+Done when (existing script): in a scratch worktree, a line of code appended to each gate file, one at a time, makes the tier command print `Review tier: 2` with that file among the reasons, and the script's tests pass.
 
 Otherwise:
 
