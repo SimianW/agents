@@ -3,6 +3,7 @@
 
 Usage:
     python3 scripts/file-length.py          # check every code file; exit 1 on any problem
+    PR_BODY=... python3 scripts/file-length.py <base>   # also check caps added or raised vs base
     python3 scripts/file-length.py --caps   # print a CAPS block for the files over MAX_LINES
 
 Reads the working tree: tracked files, and untracked files that git does not ignore. Only code
@@ -17,11 +18,25 @@ A file over MAX_LINES fails unless CAPS holds its path. A capped file fails when
 cap, and also when it shrinks below it: the cap must come down to the new length, so caps only
 ratchet down. A cap whose file is back within MAX_LINES, or gone, must be dropped.
 
-CI runs this on every PR and on every push to the default branch: .github/workflows/file-length.yml.
-Exits 0 when every file passes, or after --caps; 1 on a failing file or when git fails; 2 on bad usage.
+With a base (a PR's base branch, such as origin/main), the check also compares CAPS with CAPS in
+this script at the merge base of HEAD and base, read with `git show` and `ast.literal_eval`; a
+script missing there means no caps. Every cap that is new, or higher than there, fails unless the
+PR_BODY environment variable holds its item, one line per cap:
+
+    - **Cap raised:** `src/big.py` 640 → 700: <why the file cannot split now>
+
+The item gives the path in backticks, the cap at the merge base (`new` for an added cap), `→` (or
+`->`), the cap now, and a reason after the colon. A cap that drops needs no item. Without a base
+(a push to the default branch) only the working tree is checked.
+
+CI runs this on every PR, with its base and body, and on every push to the default branch:
+.github/workflows/file-length.yml. Exits 0 when every file passes, or after --caps; 1 on a failing
+file or cap, or when git fails or CAPS at the merge base cannot be read; 2 on bad usage.
 """
+import ast
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -46,6 +61,7 @@ CAPS = {
 # --------------------------------------------------------------------------------------------
 
 LINE_BREAK = re.compile("\r\n|[\r\n\u2028\u2029]")
+CAP_ITEM = re.compile(r"[-*] \*\*Cap raised:\*\* `([^`]+)` (new|[0-9]+) (?:→|->) ([0-9]+): \S.*")
 
 
 class GitError(Exception):
@@ -114,6 +130,43 @@ def problems(files):
     return sorted(found)
 
 
+def base_caps(base, root):
+    """Return CAPS from this script at the merge base of HEAD and base; {} when it is missing there."""
+    merge_base = git("merge-base", "HEAD", base, cwd=root).decode("utf-8").strip()
+    script = Path(__file__).resolve().relative_to(Path(root).resolve()).as_posix()
+    try:
+        source = git("show", f"{merge_base}:{script}", cwd=root).decode("utf-8")
+    except GitError:
+        return {}
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "CAPS" for t in node.targets):
+            caps = ast.literal_eval(node.value)
+            if isinstance(caps, dict):
+                return caps
+    raise ValueError(f"no literal CAPS dict in {script} at the merge base {merge_base[:7]}")
+
+
+def raised_caps(body, before, after):
+    """Return one problem for each cap added or raised from before to after without its item."""
+    items = set()
+    for line in (body or "").splitlines():
+        match = CAP_ITEM.fullmatch(line.strip())
+        if match:
+            items.add((match.group(1), match.group(2), int(match.group(3))))
+    found = []
+    for path, cap in sorted(after.items()):
+        old = before.get(path)
+        if old is not None and cap <= old:
+            continue
+        if (path, "new" if old is None else str(old), cap) in items:
+            continue
+        change = f"adds a cap of {cap}" if old is None else f"raises its cap from {old} to {cap}"
+        item = f"- **Cap raised:** `{path}` {'new' if old is None else old} → {cap}: <reason>"
+        found.append(f"{path}: the PR {change}: split the file along a seam, or add `{item}` "
+                     f"to the PR body")
+    return found
+
+
 def caps_block(files):
     over = sorted((path, lines) for path, lines in files.items() if lines > MAX_LINES)
     if not over:
@@ -123,20 +176,24 @@ def caps_block(files):
 
 
 def main(argv):
-    if argv not in ([], ["--caps"]):
+    if len(argv) > 1 or (argv and argv != ["--caps"] and argv[0].startswith("-")):
         print(__doc__.strip(), file=sys.stderr)
         return 2
+    base = argv[0] if argv and argv != ["--caps"] else None
     try:
         is_code = load_is_code()
         root = git("rev-parse", "--show-toplevel").decode("utf-8").strip()
         files = code_file_lines(root, is_code)
-    except (GitError, OSError) as error:
+        before = base_caps(base, root) if base else None
+    except (GitError, OSError, SyntaxError, ValueError) as error:
         print(f"file-length: {error}", file=sys.stderr)
         return 1
     if argv == ["--caps"]:
         print(caps_block(files))
         return 0
     found = problems(files)
+    if before is not None:
+        found += raised_caps(os.environ.get("PR_BODY", ""), before, CAPS)
     for line in found:
         print(line)
     if found:
