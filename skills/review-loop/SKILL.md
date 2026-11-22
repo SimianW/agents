@@ -45,7 +45,9 @@ One row per merged finding, kept from round 1 to the report:
 - `L` id, and the seat ids it merges (`L1` = `S1`, `N2`);
 - severity: `blocker`, `should`, or `nit`;
 - found by, and cross-check result (confirmed by / refuted by);
-- outcome: `open`, `fixed`, `disputed`, `declined`, or `overridden`;
+- outcome: `open`, `fixed`, `disputed`, `declined`, `narrowed`, or
+  `overridden`;
+- chain: the `L` id whose fix wrote the code it is in (`L8 ← L6`), if any;
 - evidence: file:line trace, repro, or test output.
 
 Also count each seat's calls (panel plus cross-check) and record usage when
@@ -58,7 +60,8 @@ a tool returns it. Never guess either.
   Tier 1: up to 2 rounds. Tier 2: up to 3.
 - No tier script: 2 rounds; 3 for security, permissions, auth, data loss,
   or state/concurrency, or when the user asks.
-- 3 rounds is the ceiling; only the user lifts it.
+- 3 rounds is the ceiling; only the user lifts it. A lift adds one round
+  unless the user names more.
 - A round is one panel pass plus its merge and cross-check. Cross-check
   calls are part of their round.
 - Round 1 leaving only nits ends the loop. Declined nits and comment, doc,
@@ -92,6 +95,10 @@ sees only its own brief, never another seat's findings: blindness is what
 makes overlap meaningful. Wait for every seat's notice, with scoped files
 untouched and no polling. A timeout, error, or empty reply is not approval:
 cancel that seat, confirm it stopped, and restart it once.
+
+Report to the user once per round, after its merge and cross-check settle.
+A seat that finishes while others are still out goes into the ledger, and
+the turn ends with no message.
 
 If the repo has `CODING_STANDARDS.md`, paste its full text where the brief
 says `Standards`; otherwise drop that block and the `### Standards` table.
@@ -191,6 +198,11 @@ one-line change inside the intent.
 - Disagree: mark `disputed` and write why, with evidence (file:line, test,
   output).
 - Out of scope: decline in one line. List as follow-up.
+- Chain: at the second link on one branch (`L8 ← L6 ← L1`), narrow
+  instead of patching again. Put that branch back to its base behavior, or
+  switch it off where it starts, with a test that shows the base behavior;
+  mark its findings `narrowed` and file them as one follow-up issue. If the
+  user's request named that branch, ask before cutting it.
 
 Update the ledger. Re-run checks and `git diff --shortstat <base>`. If
 review grew the diff, cut first. Agree only on the evidence, never to end
@@ -222,7 +234,14 @@ declined or refuted. You have no concern of your own.
 
 **Stuck:** a finding is still `disputed` after a round that re-checked it,
 or the budget ends with a blocker or should open. Show both sides in 2-3
-lines each. The user decides. Budget end is not approval.
+lines each. Budget end is not approval. The user decides among:
+
+- **Narrow:** cut the contested branch back to base behavior and file a
+  follow-up issue; the cut gets one review round. Recommend it when the
+  open findings form a chain or sit on a branch no live run reached, and
+  say how often live runs reached it.
+- **Another round:** fix and re-review.
+- **Override:** ship as is (below).
 
 **Override:** if, after a stuck report, the user explicitly says to ship
 anyway, the user is the last reviewer and the current behavior diff counts
@@ -241,7 +260,7 @@ body has none):
 - **Reviewers:** gpt-6.2-sol ×<a>, claude-opus-5-5 ×<b>, gemini-4-neon ×<c>
 
 <details>
-<summary>Findings: <n> fixed, <n> declined, <n> overridden</summary>
+<summary>Findings: <n> fixed, <n> declined, <n> narrowed, <n> overridden</summary>
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
@@ -253,10 +272,10 @@ body has none):
 
 Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
 the short hash of the commit holding the diff the panel approved or the
-user overrode. Drop `, <n> overridden` when there is no override. A later
-commit that changes behavior needs a new loop and a new `<sha>`. `×<a>`
-counts a seat's panel and cross-check calls; list only seats that ran. Drop
-the `<details>` block when no seat raised a finding.
+user overrode. Drop `, <n> narrowed` or `, <n> overridden` when there is
+none. A later commit that changes behavior needs a new loop and a new
+`<sha>`. `×<a>` counts a seat's panel and cross-check calls; list only
+seats that ran. Drop the `<details>` block when no seat raised a finding.
 
 To enforce this in a repo's CI, copy `scripts/check-pr-body.py` from this
 skill into the repo's `scripts/`, fill its `TODO(repo)` blanks, and add the
