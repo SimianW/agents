@@ -70,7 +70,7 @@ Done when: every seam in `docs/agents/seams.md` names a path that exists and a c
 
 ## 5. Block
 
-Write the `## Workflow` section from [workflow.md](workflow.md) into the instructions file, after `## Agent skills`, with every `<blank>` filled: the base branch, and the tier command from step 2.
+Write the `## Workflow` section from [workflow.md](workflow.md) into the instructions file, after `## Agent skills`, with every `<blank>` filled: the base branch, the tier command from step 2, and the length limit, where the caps live and the check command from step 3 (`500`, `CAPS` in `scripts/file-length.py` and `python3 scripts/file-length.py`, or the repo's own check).
 
 The Frontend bullet is for a repo with a user-visible frontend. Ask the user, recommending yes when the repo has UI files (HTML, CSS, components); on yes, fill its blanks from the repo, and on no, leave the bullet out.
 
