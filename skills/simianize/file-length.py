@@ -19,9 +19,10 @@ cap, and also when it shrinks below it: the cap must come down to the new length
 ratchet down. A cap whose file is back within MAX_LINES, or gone, must be dropped.
 
 With a base (a PR's base branch, such as origin/main), the check also compares CAPS with CAPS in
-this script at the merge base of HEAD and base, read with `git show` and `ast.literal_eval`; a
-script missing there means no caps. Every cap that is new, or higher than there, fails unless the
-PR_BODY environment variable holds its item, one line per cap:
+this script at the merge base of HEAD and base, read with `git show` and `ast.literal_eval`. When
+the script is missing there, the PR is the one that adds it, and its starting caps need no items.
+Otherwise every cap that is new, or higher than there, fails unless the PR_BODY environment
+variable holds its item, one line per cap:
 
     - **Cap raised:** `src/big.py` 640 → 700: <why the file cannot split now>
 
@@ -131,13 +132,13 @@ def problems(files):
 
 
 def base_caps(base, root):
-    """Return CAPS from this script at the merge base of HEAD and base; {} when it is missing there."""
+    """Return CAPS from this script at the merge base of HEAD and base; None when it is missing there."""
     merge_base = git("merge-base", "HEAD", base, cwd=root).decode("utf-8").strip()
     script = Path(__file__).resolve().relative_to(Path(root).resolve()).as_posix()
     try:
         source = git("show", f"{merge_base}:{script}", cwd=root).decode("utf-8")
-    except GitError:
-        return {}
+    except GitError:  # The PR adds this script, so its starting caps are not raises.
+        return None
     for node in ast.parse(source).body:
         if isinstance(node, ast.Assign) and any(getattr(t, "id", None) == "CAPS" for t in node.targets):
             caps = ast.literal_eval(node.value)
