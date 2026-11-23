@@ -67,6 +67,7 @@ a tool returns it. Never guess either.
   calls are part of their round.
 - Round 1 leaving only nits ends the loop. Declined nits and comment, doc,
   or format-only fixes need no new round.
+- A merge round (see After approval) does not count against the budget.
 
 ## 1. Scope
 
@@ -275,7 +276,7 @@ Keep the Verdict item in exactly this shape: CI scripts match it. `<sha>` is
 the short hash of the commit holding the diff the panel approved or the
 user overrode. Drop `, <n> narrowed` or `, <n> overridden` when there is
 none. A later commit that changes behavior needs a new loop and a new
-`<sha>`. `×<a>` counts a seat's panel and cross-check calls; list only
+`<sha>`; a merge of the base branch follows After approval instead. `×<a>` counts a seat's panel and cross-check calls; list only
 seats that ran. Drop the `<details>` block when no seat raised a finding.
 
 To enforce this in a repo's CI, copy `scripts/check-pr-body.py` from this
@@ -300,3 +301,21 @@ Report to the user in this shape:
 A stuck loop reads **Review loop: stuck** instead, and the disputed items
 follow. An overridden loop reads **Review loop: approved (override)**, and
 its `overridden` items stay in the table.
+
+## After approval
+
+When the base branch moves after approval:
+
+- Update the branch only when GitHub reports a merge conflict, and only by
+  merging `origin/<base>` into it. Never rebase, amend, or force-push an
+  approved branch.
+- Leave the Verdict item as it is. Never point it at a commit that no seat
+  and not the user saw, and never move a user's override.
+- Run the PR-body check. Pass: push. Fail on the merge: run one **merge
+  round**. Every seat reviews only the conflict resolution
+  (`git show --remerge-diff <merge>`), and the round does not count against
+  the budget. APPROVE: set the Verdict to the merge commit. A confirmed
+  blocker or should: fix it in a normal round, which counts; with no budget
+  left, the loop is Stuck.
+- An overridden PR whose check fails after the merge goes back to the user
+  as Stuck; it gets no merge round.
