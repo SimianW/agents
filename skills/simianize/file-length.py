@@ -28,7 +28,8 @@ variable holds its item, one line per cap:
 
 The item gives the path in backticks, the cap at the merge base (`new` for an added cap), `→` (or
 `->`), the cap now, and a reason after the colon. A cap that drops needs no item. Without a base
-(a push to the default branch) only the working tree is checked.
+(a push to the default branch) only the working tree is checked. Items inside HTML comments
+(`<!-- ... -->`) and fenced code blocks do not count: they never render.
 
 CI runs this on every PR, with its base and body, and on every push to the default branch:
 .github/workflows/file-length.yml. Exits 0 when every file passes, or after --caps; 1 on a failing
@@ -62,7 +63,50 @@ CAPS = {
 # --------------------------------------------------------------------------------------------
 
 LINE_BREAK = re.compile("\r\n|[\r\n\u2028\u2029]")
+FENCE_OPENER = re.compile(r"(`{3,}|~{3,})(.*)")
 CAP_ITEM = re.compile(r"[-*] \*\*Cap raised:\*\* `([^`]+)` (new|[0-9]+) (?:→|->) ([0-9]+): \S.*")
+
+
+def rendered_lines(body):
+    """Return the body's stripped lines without the text that Markdown does not render.
+
+    Drops HTML comments (`<!-- ... -->`, on one line or across several; the text around them on
+    a line stays) and fenced code blocks (``` or ~~~, with or without an info string; all fence
+    lines go). A fence closes on a line of only its own character, at least as long as the
+    opener; a backtick opener's info string has no backtick, so ```x``` is inline code. An unclosed
+    comment or fence hides the rest of the body. Fence markers inside a comment, and `<!--`
+    inside a fence, are literal. Indented code blocks are not recognised.
+    """
+    lines = []
+    fence = None  # (character, length) of the open fence
+    in_comment = False
+    for raw in (body or "").splitlines():
+        stripped = raw.strip()
+        if fence is not None:
+            if stripped and set(stripped) == {fence[0]} and len(stripped) >= fence[1]:
+                fence = None
+            continue
+        if not in_comment:
+            opener = FENCE_OPENER.match(stripped)
+            if opener and not (opener.group(1)[0] == "`" and "`" in opener.group(2)):
+                fence = (opener.group(1)[0], len(opener.group(1)))
+                continue
+        kept, i = [], 0
+        while i < len(raw):
+            if in_comment:
+                end = raw.find("-->", i)
+                if end < 0:
+                    break
+                in_comment, i = False, end + 3
+            else:
+                start = raw.find("<!--", i)
+                if start < 0:
+                    kept.append(raw[i:])
+                    break
+                kept.append(raw[i:start])
+                in_comment, i = True, start + 4
+        lines.append("".join(kept).strip())
+    return lines
 
 
 class GitError(Exception):
@@ -150,8 +194,8 @@ def base_caps(base, root):
 def raised_caps(body, before, after):
     """Return one problem for each cap added or raised from before to after without its item."""
     items = set()
-    for line in (body or "").splitlines():
-        match = CAP_ITEM.fullmatch(line.strip())
+    for line in rendered_lines(body):
+        match = CAP_ITEM.fullmatch(line)
         if match:
             items.add((match.group(1), match.group(2), int(match.group(3))))
     found = []

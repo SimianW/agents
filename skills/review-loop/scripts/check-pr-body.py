@@ -31,6 +31,8 @@ The check enforces:
    itself, limited to paths the PR touched.
 3. The Reviewers item is for people; the check does not read it.
 
+Items inside HTML comments (`<!-- ... -->`) and fenced code blocks do not count: they never render.
+
 Exits 0 when the body passes; 1 with one `FAIL:` line per failure otherwise; 2 on bad usage.
 """
 import os
@@ -93,8 +95,51 @@ def classify_special(path, base_rev, root):
 # The rest is generic. Change it only when the PR-body format in the `pr` skill changes.
 # --------------------------------------------------------------------------------------------
 
+FENCE_OPENER = re.compile(r"(`{3,}|~{3,})(.*)")
 TIER_ITEM = re.compile(r"[-*] \*\*Tier:\*\* ([0-9]+)")
 VERDICT_ITEM = re.compile(r"[-*] \*\*Verdict:\*\* (approved|overridden by [^`@\s]+) at (`?)([0-9a-fA-F]{7,40})\2")
+
+
+def rendered_lines(body):
+    """Return the body's stripped lines without the text that Markdown does not render.
+
+    Drops HTML comments (`<!-- ... -->`, on one line or across several; the text around them on
+    a line stays) and fenced code blocks (``` or ~~~, with or without an info string; all fence
+    lines go). A fence closes on a line of only its own character, at least as long as the
+    opener; a backtick opener's info string has no backtick, so ```x``` is inline code. An unclosed
+    comment or fence hides the rest of the body. Fence markers inside a comment, and `<!--`
+    inside a fence, are literal. Indented code blocks are not recognised.
+    """
+    lines = []
+    fence = None  # (character, length) of the open fence
+    in_comment = False
+    for raw in (body or "").splitlines():
+        stripped = raw.strip()
+        if fence is not None:
+            if stripped and set(stripped) == {fence[0]} and len(stripped) >= fence[1]:
+                fence = None
+            continue
+        if not in_comment:
+            opener = FENCE_OPENER.match(stripped)
+            if opener and not (opener.group(1)[0] == "`" and "`" in opener.group(2)):
+                fence = (opener.group(1)[0], len(opener.group(1)))
+                continue
+        kept, i = [], 0
+        while i < len(raw):
+            if in_comment:
+                end = raw.find("-->", i)
+                if end < 0:
+                    break
+                in_comment, i = False, end + 3
+            else:
+                start = raw.find("<!--", i)
+                if start < 0:
+                    kept.append(raw[i:])
+                    break
+                kept.append(raw[i:start])
+                in_comment, i = True, start + 4
+        lines.append("".join(kept).strip())
+    return lines
 
 
 class GitError(Exception):
@@ -137,7 +182,7 @@ def classify(paths, base_rev, root):
 
 def check_body(body, tier, reasons, review_gate, head):
     """Return (failures, passes) for a PR body against the computed tier."""
-    lines = [line.strip() for line in (body or "").splitlines()]
+    lines = rendered_lines(body)
     failures, passes = [], []
 
     claims = [int(m.group(1)) for m in map(TIER_ITEM.fullmatch, lines) if m]
