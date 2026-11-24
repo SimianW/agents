@@ -108,6 +108,10 @@ Unicode symbols and plain-text notation are not substitutes:
 - **Exception:** `machine.md` is the one file git ignores, so it stays on this machine.
 - **Skills CLI:** read `~/.agents/README.md` before you run it.
 
+## Delegation table
+
+When you start a subagent for a role that a skill or a repo names (Build, Build-light, Hunt, Drive, Chore), take its model and `target` from the delegation table under `## Subagents` in `~/.agents/claude/CLAUDE.md`.
+
 ## Reviews
 
 When the repo's AGENTS.md or CLAUDE.md sets a review rule, follow it instead of this section.
