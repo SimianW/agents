@@ -7,7 +7,7 @@ description: Use before pushing or merging a change that meets the AGENTS.md Rev
 
 A **panel** of two models from two families reviews the diff **blind**
 and in parallel. You, the lead, merge their findings into one **ledger**,
-**cross-check** every solo finding with the other seats, fix what holds up in
+**cross-check** every solo finding with the other seat, fix what holds up in
 one batch, and re-check narrowly. Evidence settles findings, not votes or
 confidence.
 
@@ -34,8 +34,7 @@ cross-check call is a new `delegate_task` (`role: "review"`,
 
 **Short seat.** A seat that cannot run (provider missing, credits out, two
 failed starts) drops out. With one seat left, ask the user once which model
-fills in. Name the seats that ran in the
-report and PR.
+fills in. Name the seats that ran in the report and PR.
 
 ## Ledger
 
