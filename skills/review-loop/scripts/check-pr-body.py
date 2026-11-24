@@ -16,7 +16,7 @@ under a `## Review` heading at the end of the body (layout in the `pr` skill):
 
     - **Tier:** 1
     - **Verdict:** approved at `fd81ae1`
-    - **Reviewers:** gpt-6.2-sol ×2, claude-opus-5-5 ×2, gemini-4-neon ×2
+    - **Reviewers:** gpt-6.2-sol ×2, claude-opus-5-5 ×2
 
 The check enforces:
 

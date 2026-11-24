@@ -5,7 +5,7 @@ description: Use before pushing or merging a change that meets the AGENTS.md Rev
 
 # review-loop
 
-A **panel** of three models from three families reviews the diff **blind**
+A **panel** of two models from two families reviews the diff **blind**
 and in parallel. You, the lead, merge their findings into one **ledger**,
 **cross-check** every solo finding with the other seats, fix what holds up in
 one batch, and re-check narrowly. Evidence settles findings, not votes or
@@ -20,7 +20,6 @@ creep, and push back with evidence.
 |---|---|---|---|
 | Sol | `gpt-6.2-sol`, high | `S` | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high"}}` |
 | Opus | `claude-opus-5-5`, high | `O` | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
-| Neon | `gemini-4-neon`, high | `N` | `{"providerInstanceId": "antigravity", "model": "gemini-4-neon", "options": {"thought_level": "high"}}` |
 
 This table sets the reviewers for this skill, in place of the CLAUDE.md
 Hunt row. Swap a seat only when the user names another model.
@@ -34,15 +33,15 @@ cross-check call is a new `delegate_task` (`role: "review"`,
 (Opus in Claude Code, Sol in Codex) and keep each subagent ID.
 
 **Short seat.** A seat that cannot run (provider missing, credits out, two
-failed starts) drops out. Two seats still make a panel. With one seat left,
-ask the user once which model fills in. Name the seats that ran in the
+failed starts) drops out. With one seat left, ask the user once which model
+fills in. Name the seats that ran in the
 report and PR.
 
 ## Ledger
 
 One row per merged finding, kept from round 1 to the report:
 
-- `L` id, and the seat ids it merges (`L1` = `S1`, `N2`);
+- `L` id, and the seat ids it merges (`L1` = `S1`, `O2`);
 - severity: `blocker`, `should`, or `nit`;
 - found by, and cross-check result (confirmed by / refuted by);
 - outcome: `open`, `fixed`, `disputed`, `declined`, `narrowed`, or
@@ -147,17 +146,15 @@ stable across rounds; write "None." under Findings when there are none.
   blocker or should without evidence is a nit.
 - Findings with the same root cause become one `L` id that lists every seat
   id.
-- Found by two or more seats: **confirmed**; no cross-check.
+- Found by both seats: **confirmed**; no cross-check.
 - Seats that agree on a finding but not its severity: set it yourself from
   the evidence. Lowering a seat's blocker or should needs your own evidence
-  (repro, trace) in the ledger. If you cannot settle it, add the severity
-  question to the cross-check call of a seat that did not raise it; with
-  none left, you decide.
+  (repro, trace) in the ledger.
 - Solo blocker or should: goes to cross-check. Solo nit: you decide alone.
 
 ## 4. Cross-check
 
-Send each seat, in parallel, the solo blockers and shoulds the *other* seats
+Send each seat, in parallel, the solo blockers and shoulds the *other* seat
 raised: one call per seat, all its findings in one list, with the raising
 seat's name left out.
 
@@ -175,17 +172,15 @@ Reply in Markdown, one line per finding:
 - **L2:** confirm | refute | unsure: <evidence>
 ```
 
-Settle each finding:
+The other seat is the only checker. Settle each finding:
 
-| Checkers | Result |
+| Checker | Result |
 |---|---|
-| at least one confirms with evidence | **confirmed** |
-| both refute with evidence | `declined` as a nit |
+| confirms with evidence | **confirmed** |
+| refutes with evidence | `declined` as a nit |
 | anything else | you judge from the evidence; still unclear: `disputed` |
 
-With a two-seat panel, the single checker decides: confirm → confirmed,
-refute → declined, unsure → you judge. You may still dispute a confirmed
-finding, with evidence.
+You may still dispute a confirmed finding, with evidence.
 
 ## 5. Fix
 
@@ -259,14 +254,14 @@ body has none):
 
 ```markdown
 - **Verdict:** approved at `<sha>` | overridden by <user> at `<sha>`
-- **Reviewers:** gpt-6.2-sol ×<a>, claude-opus-5-5 ×<b>, gemini-4-neon ×<c>
+- **Reviewers:** gpt-6.2-sol ×<a>, claude-opus-5-5 ×<b>
 
 <details>
 <summary>Findings: <n> fixed, <n> declined, <n> narrowed, <n> overridden</summary>
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
-| L1 (S1, N2) | blocker | fixed | `<file>:<line>` <claim, one line> |
+| L1 (S1, O2) | blocker | fixed | `<file>:<line>` <claim, one line> |
 | L2 (O1) | nit | declined | <claim>: <reason> |
 
 </details>
@@ -286,11 +281,11 @@ workflow at the bottom of that file. Its `tier` mode prints `Review tier: N`.
 Report to the user in this shape:
 
 ```markdown
-**Review loop: approved** at `<sha>` · <N> rounds · Sol ×<a>, Opus ×<b>, Neon ×<c> · pushed: yes|no
+**Review loop: approved** at `<sha>` · <N> rounds · Sol ×<a>, Opus ×<b> · pushed: yes|no
 
 | ID | Severity | Outcome | Finding |
 |---|---|---|---|
-| L1 (S1, N2) | blocker | fixed | <claim, one line> |
+| L1 (S1, O2) | blocker | fixed | <claim, one line> |
 | L2 (O1) | nit | declined | <claim>: <reason> |
 
 **Diff:** <shortstat before> → <shortstat after>
