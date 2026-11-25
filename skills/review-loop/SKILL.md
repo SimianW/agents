@@ -18,7 +18,7 @@ creep, and push back with evidence.
 
 | Seat | Model, effort | Id prefix | T3 `target` |
 |---|---|---|---|
-| Sol | `gpt-6.2-sol`, high | `S` | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high"}}` |
+| Sol | `gpt-6.2-sol`, high, fast | `S` | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high", "serviceTier": "priority"}}` |
 | Opus | `claude-opus-5-5`, high | `O` | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 
 This table sets the reviewers for this skill, in place of the CLAUDE.md
