@@ -1,127 +1,101 @@
 ---
 name: simianize
-description: "Set up a repo for the PR-and-review workflow: Matt Pocock's skill config, the review-tier gate, PR size labels, the file-length ratchet, test seams, the bug-fix steps, and the Workflow block in AGENTS.md. Re-run it to update a repo."
+description: "Set up or update a repo's PR, review-tier, size, file-length, seam, bugfix, and workflow files."
 disable-model-invocation: true
 ---
 
 # Simianize
 
-Scaffold the per-repo files the workflow assumes, in six layers:
+Scaffold or update the per-repo workflow files in six layers:
 
-- **Base**: the issue tracker, triage labels and domain docs that Matt Pocock's engineering skills read.
-- **Gate**: the review-tier script and the `pr-body` CI check that the `review-loop` and `pr` skills write for.
-- **Size**: the CI jobs that label every PR by the lines of code it changes and hold every code file to a length limit.
-- **Seams**: the test seams agreed once for this repo, and the bug-fix steps built on them.
-- **Block**: the `## Workflow` section in the repo's instructions, which ties the skills together.
-- **Changelog**: the rules for writing release notes, for a repo that ships versioned releases.
+- **Base**: issue tracker, triage labels, and domain docs for Matt Pocock's engineering skills.
+- **Gate**: review-tier script and `pr-body` CI check for `review-loop` and `pr`.
+- **Size**: PR code-size labels (`size/XS`–`size/XXL`) and the file-length ratchet.
+- **Seams**: `CODING_STANDARDS.md`, agreed test seams (`docs/agents/seams.md`), and `docs/bugfix.md`.
+- **Workflow**: disclosed `docs/agents/workflow.md` plus a concise `## Workflow` pointer block in `AGENTS.md`.
+- **Changelog**: release-note rules, for repos with versioned releases.
 
-The repo's own files win. Each step adds what is missing and updates what an earlier run wrote; content the templates do not cover (versioning, releases, lab rules) stays the repo's own. The instructions file is read on every turn, so keep in it what every task needs and move the rest behind pointers (step 5). In each step, explore first, then ask that step's questions together in one dialog, each led by your recommended answer, then show a draft of every file before you write it. Keep this machine's name and paths out of the files you write: a local URL reads `http://<host>:<port>`.
+**Working rules:** The repo's own content wins—add what is missing and update earlier template output while keeping repo-specific rules (versioning, releases, lab rules). Explore each step first, ask that step's questions together in one dialog (recommended answer first), and show file drafts before writing. Keep machine-specific names and paths out of repo files (write `http://<host>:<port>`).
 
 ## 1. Base
 
-First settle the **instructions file**. `AGENTS.md` holds the repo's instructions and `CLAUDE.md` is the one line `@AGENTS.md`, so Claude Code and Codex read the same text:
+Settle the **instructions file**: `AGENTS.md` holds repo instructions and `CLAUDE.md` is `@AGENTS.md`:
 
-- Neither file exists: create both.
+- Neither exists: create both.
 - Only `AGENTS.md` exists: create `CLAUDE.md`.
-- `CLAUDE.md` holds instructions of its own: ask the user whether to move them into `AGENTS.md` (recommended). If they decline, `CLAUDE.md` is the instructions file for this run.
+- `CLAUDE.md` holds its own instructions: ask whether to move them into `AGENTS.md` (recommended). If declined, `CLAUDE.md` is the instructions file for this run.
 
-Note the instructions file's line count for step 7's report (0 when you just created it).
+Record the instructions file's starting line count for Step 7 (`0` if newly created).
 
-Then read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its whole process, with two changes. Its `## Agent skills` block goes in the instructions file you just settled, in place of its own rule for picking or asking for a file. And its sections are asked together in one dialog, as in every step here. Every later step writes to that same file.
+Read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its process with two changes: place its `## Agent skills` block in the settled instructions file, and batch its questions into one dialog. On a re-run where the done-check already passes, proceed to Step 2.
 
-On a re-run, when the done-check below already passes, go to step 2.
-
-Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has the `## Agent skills` block, and the tracker has every label in `docs/agents/triage-labels.md`.
+Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has `## Agent skills`, and the tracker has every label in `docs/agents/triage-labels.md`.
 
 ## 2. Gate
 
-A repo that already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with a `tier` mode) keeps it. Note the command that prints its tier for step 5 (`python3 scripts/review-tier.py [base]`, say), then audit that the gate covers itself. These **gate files** must each come out as tier 2, with no tier 0 rule (comment-only, docs, format) able to lower them:
-
-- the CI workflows (`.github/workflows/`, or the CI host's equivalent);
-- the tier script and the PR-body check;
-- every helper they run whose answer can lower a tier, such as a script that decides when a change is comment-only.
-
-Show the user each gate file that falls short, and offer to make it tier 2, with a test for each in the script's own tests. Change only those rules; the rest of the script stays the repo's own. Then go to step 3.
-
-Done when (existing script): in a scratch worktree, a line of code appended to each gate file, one at a time, makes the tier command print `Review tier: 2` with that file among the reasons, and the script's tests pass.
+If the repo already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with `tier` mode), read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing review-tier script", then continue to Step 3.
 
 Otherwise:
 
 1. Copy [check-pr-body.py](../review-loop/scripts/check-pr-body.py) to `scripts/check-pr-body.py`.
-2. Fill every `TODO(repo)` and rewrite the header docstring for this repo. Match the repo's tree against the tier 2 list in the script's comment, then ask the user to confirm the tier 2 paths and the tier 0 paths.
+2. Fill every `TODO(repo)` and rewrite the header docstring for this repo. Match the tree against the tier 2 list in the script comment, and confirm tier 2 and tier 0 paths with the user. Classify by **path** (mixed risky/ordinary files are tier 2 as a whole). Leave `classify_special` returning `None` (removing its `TODO(repo)` comment) unless the user asks for a content heuristic.
+3. Write `.github/workflows/pr-body.yml` from the example at the bottom of the script (or port to the repo's CI host).
+4. Ask before making `pr-body` a required branch-protection check.
 
-   Classify by **path**. A file that holds both risky and ordinary code is tier 2 as a whole. `classify_special` stays as the template has it, returning `None`, with its `TODO(repo)` taken out of the docstring; write a rule that reads a file's content only when the user asks for one, because such a rule is a heuristic that goes stale as the file changes.
-3. Write `.github/workflows/pr-body.yml` from the example at the bottom of the script. On another CI host, port the same job.
-4. Ask the user before you make `pr-body` a required check in branch protection: a repo setting is theirs to change.
-
-Done when: no `TODO(repo)` remains in the script, and `python3 scripts/check-pr-body.py tier` prints `Review tier: 2`, because this change adds the gate itself.
+Done when: no `TODO(repo)` remains in `scripts/check-pr-body.py`, and `python3 scripts/check-pr-body.py tier` prints `Review tier: 2`.
 
 ## 3. Size
 
-CI labels every PR by the lines of code it changes, on the Kubernetes scale (`size/XS` to `size/XXL`), and holds every code file to a length limit. Only code counts: prose, lock files and binary files are left out. `pr-size.py` holds that definition of code, and `file-length.py` reads it from there.
+1. Copy [pr-size.py](pr-size.py) to `scripts/pr-size.py`, fill every `TODO(repo)`, and confirm non-code paths (docs, notes, generated/vendored output, results) with the user.
+2. Copy [pr-size.yml](pr-size.yml) to `.github/workflows/pr-size.yml` (or port to the repo's CI host).
+3. Create any missing label printed by `python3 scripts/pr-size.py --labels`.
+4. **File length:** if the repo already enforces file length (e.g. ESLint `max-lines`), read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing file-length check" (skipping both `file-length.py` and `file-length.yml`). Otherwise:
+   - Copy [file-length.py](file-length.py) to `scripts/file-length.py`, run `python3 scripts/file-length.py --caps`, confirm `MAX_LINES` (500 recommended) and starting `CAPS` with the user, paste them into the script, and remove its `TODO(repo)`.
+   - Copy [file-length.yml](file-length.yml) to `.github/workflows/file-length.yml` with the default branch filled in (or port to the repo's CI host).
 
-1. Copy [pr-size.py](pr-size.py) to `scripts/pr-size.py` and fill every `TODO(repo)`. Propose the paths in this repo that are not code (docs, notes, generated or vendored output, results), and ask the user to confirm them.
-2. Copy [pr-size.yml](pr-size.yml) to `.github/workflows/pr-size.yml`. On another CI host, port the same job.
-3. Create each label that `python3 scripts/pr-size.py --labels` prints and the tracker lacks.
-4. **File length.** A repo that already enforces file length (ESLint `max-lines`, say) keeps its own check and skips substeps 4 and 5, but that check must also compare caps with the PR's base, as `file-length.py <base>` does: a PR that adds a cap or raises one fails unless its body carries a ``- **Cap raised:** `<path>` <old or new> → <cap>: <reason>`` item for it. A check that only reads the working tree lets a raised cap through unnoticed. When the repo's check lacks this, add it to the repo's own tooling (the PR-body check is a natural home, since CI already hands it the body and the base), with tests. Otherwise copy [file-length.py](file-length.py) to `scripts/file-length.py`. Run `python3 scripts/file-length.py --caps`, show the user the files it caps at their current length, and ask them to confirm `MAX_LINES` (500 recommended). Paste the output for the confirmed limit over `CAPS`, and take out its `TODO(repo)`. Caps only ratchet down: the check fails when a capped file shrinks and its cap stays, and, given the PR's base, when a cap is added or raised without its `Cap raised` item. The PR that adds the script needs no items for its starting caps: with no script at the base, the base comparison is skipped.
-5. Copy [file-length.yml](file-length.yml) to `.github/workflows/file-length.yml`, with its `TODO(repo)` filled by the default branch. On another CI host, port the same job: on a PR (including an edit to its body) it runs `file-length.py <base>` with full history and the body in `PR_BODY`; on a push to the default branch it runs with no base.
+On a re-run, keep the repo's top-of-script settings (`MAX_LINES`, `CAPS`, excluded paths) and update the rest from the templates.
 
-On a re-run, keep the repo's settings at the top of each script (`MAX_LINES` and `CAPS` among them) and bring over the rest of the templates.
-
-Done when: no `TODO(repo)` remains in the scripts or workflows, `python3 scripts/pr-size.py` prints a `size/` label followed by a file list that holds only code, the tracker has all six labels, and `python3 scripts/file-length.py` prints `file-length: ok…` and exits 0 (or the repo's own length check passes).
+Done when: no `TODO(repo)` remains, `python3 scripts/pr-size.py` outputs a `size/` label with only code files, all six size labels exist on the tracker, and `python3 scripts/file-length.py` exits 0 (or the repo's own length check passes).
 
 ## 4. Seams
 
-1. **Standards.** When `CODING_STANDARDS.md` is missing, write it from [coding-standards.md](coding-standards.md).
-2. **Seams.** Find where the tests live and the commands that run them (test directories, package scripts, the CI workflow). Propose the seams in order of preference, cheapest first, each with one line on what it catches and what it misses, and ask the user to confirm the list. Write `docs/agents/seams.md` from [seams.md](seams.md). When no CI workflow runs the repo's tests, ask the user whether to add one that runs the test command (recommended), so the seams file has a workflow to name. When another doc already lists the seams, move the list and leave a pointer in its place, so `seams.md` is the single source.
-3. **Bug fixes.** When `docs/bugfix.md` is missing, write it from [bugfix.md](bugfix.md), and ask the user how a bug is shown to be this repo's own (its Control step). When it exists, keep its steps and only point its seam list at `seams.md`.
+1. **Standards:** if `CODING_STANDARDS.md` is missing, write it from [coding-standards.md](coding-standards.md).
+2. **Seams:** inspect tests, scripts, and CI; propose seams cheapest-first (each with what it catches and misses), confirm with the user, and write `docs/agents/seams.md` from [seams.md](seams.md). If no CI workflow runs tests, offer to add one (recommended). Move any duplicate seam list from other docs into `seams.md` and leave a pointer.
+3. **Bug fixes:** if `docs/bugfix.md` is missing, write it from [bugfix.md](bugfix.md) and ask how a bug is isolated to this repo (its Control step). If it exists, keep its steps and point its seams at `docs/agents/seams.md`.
 
-Done when: every seam in `docs/agents/seams.md` names a path that exists and a command that runs, and no other file lists the seams.
+Done when: every seam in `docs/agents/seams.md` names an existing path and working command, and no other doc duplicates the seam list.
 
-## 5. Block
+## 5. Workflow
 
-Write the `## Workflow` section from [workflow.md](workflow.md) into the instructions file, after `## Agent skills`, with every `<blank>` filled: the base branch, the tier command from step 2, the length limit, where the caps live and the check command from step 3 (`500`, `CAPS` in `scripts/file-length.py` and `python3 scripts/file-length.py`, or the repo's own check), and the developer doc that lists the test commands (`docs/development.md`, say; with no such doc, leave the Dev docs bullet out).
+1. Write `docs/agents/workflow.md` from [workflow.md](workflow.md) with every `<blank>` filled (base branch, tier command, body check command, length limit, caps location, length command). If it already exists, update template sections in place while keeping repo-specific additions.
+2. Write the compact `## Workflow` pointer block from [workflow-block.md](workflow-block.md) into the instructions file after `## Agent skills` with every `<blank>` filled.
+   - Omit the Dev docs bullet if no developer doc exists.
+   - Ask whether the repo has a user-visible frontend (recommend yes when UI files exist); fill language and tokens path on yes, omit the Frontend bullet on no.
+   - On a re-run where the instructions file has an older inline `## Workflow` section, migrate its procedure into `docs/agents/workflow.md`, replace the section with the pointer block, and keep repo-specific bullets/sentences. Show the diff before writing.
+3. Audit other sections in the instructions file: offer to disclose any task-specific section over ~15 lines (versioning, lab, API contract) into `docs/agents/<topic>.md`, leaving a 1-line pointer naming when to read it. Keep always-needed facts inline.
 
-The Frontend bullet is for a repo with a user-visible frontend. Ask the user, recommending yes when the repo has UI files (HTML, CSS, components); on yes, fill its blanks from the repo, and on no, leave the bullet out.
-
-When the section exists, update it in place. A template bullet replaces the bullet on the same topic; sentences in it that are specific to this repo stay, and so do bullets the template lacks. Show the user the diff before you write.
-
-Then look at the file's other sections. Offer to move each section that only some tasks need (versioning, a lab, an API contract) into `docs/agents/<topic>.md`, leaving a pointer that names when to read it ("read [docs/agents/releasing.md](docs/agents/releasing.md) before you change the version or tag a release"). Recommend the move for such a section over about 15 lines. A line every task needs stays inline, and so does a fact the user may mention in passing, such as another name for a build.
-
-Done when: the block has no `<blank>` left, and every path it names exists (`GLOSSARY.md` and `mockups/` excepted: the `domain-modeling` and `mockup-first` skills create them on first use).
+Done when: neither `docs/agents/workflow.md` nor the instructions file has any `<blank>` left, and every path referenced exists (`GLOSSARY.md` and `mockups/` excepted).
 
 ## 6. Changelog
 
-Ask the user whether this repo ships versioned releases whose changes users read. Recommend yes when the repo has a `CHANGELOG.md`, a version field or release tags, and no otherwise. On no, go to step 7.
+Ask whether this repo ships user-facing versioned releases (recommend yes if `CHANGELOG.md`, version field, or release tags exist). On no, continue to Step 7.
 
-On yes, ask when an entry is written, with these two options:
+On yes, choose when entries are written:
 
-- **Unreleased per PR** (recommended): every PR with a change the user can notice adds its bullet under a standing `## [Unreleased]` heading, and the release PR renames that heading to the version. This is Keep a Changelog's own rule and what the template says; no change is forgotten at release time.
-- **With the version bump**: the entry is written in the PR that changes the version. Replace the template's Unreleased paragraph with "Add the entry in the PR that changes the version.", and take `## [Unreleased]` out of its heading sentence and its example.
+- **Unreleased per PR** (recommended): user-visible PRs add a bullet under `## [Unreleased]`; release PRs rename it to the version.
+- **With the version bump**: write the entry in the version-bump PR (adjust the template to remove `## [Unreleased]`).
 
-Then write `docs/agents/changelog.md` from [changelog.md](changelog.md), with the `<blank>` filled by the repo's version format, and add its pointer to the `## Workflow` block:
+Write `docs/agents/changelog.md` from [changelog.md](changelog.md) with the repo's version format, and add its 1-line pointer to `## Workflow` in the instructions file:
 
-On Unreleased per PR:
+- Unreleased per PR:
+  ``- Changelog: user-visible PRs add a bullet under `## [Unreleased]` in `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) first.``
+- With version bump:
+  ``- Changelog: version-bump PRs update `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) first.``
 
-```markdown
-- Changelog: every PR with a change the user can notice adds a bullet under `## [Unreleased]` in `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) before you write one.
-```
+If the instructions file has a legacy `## Changelog` section, migrate repo-specific lines into `docs/agents/changelog.md` and replace it with the pointer. Create `CHANGELOG.md` when missing; when **Unreleased per PR** is chosen, ensure `## [Unreleased]` is the first `##` heading (inserting it if an existing file lacks one) and update any version/release scripts that parse the top of `CHANGELOG.md`.
 
-On With the version bump:
-
-```markdown
-- Changelog: the PR that changes the version adds its entry to `CHANGELOG.md`; read [docs/agents/changelog.md](docs/agents/changelog.md) before you write it.
-```
-
-When `docs/agents/changelog.md` exists, update it by step 5's rule; a pointer to it elsewhere in the instructions file counts as the bullet. When the instructions file has a `## Changelog` section (an earlier run's), move it into `docs/agents/changelog.md`, keeping its sentences specific to the repo, and leave the bullet in its place.
-
-Bring the repo in line with the choice:
-
-- `CHANGELOG.md`: create it with a `# Changelog` title when it is missing. On Unreleased per PR, its first `##` heading is `## [Unreleased]`: add the heading when it is not there.
-- On Unreleased per PR, find what else reads the top of `CHANGELOG.md` (a version check, a release script, the release steps in the instructions file) and update each in this same change, with its tests.
-
-Done when: `docs/agents/changelog.md` has no `<blank>` left, the instructions file has its pointer and no `## Changelog` section, `CHANGELOG.md` matches the choice, and every check the repo runs in CI passes locally.
+Done when: `docs/agents/changelog.md` has no `<blank>`, the instructions file has the pointer and no `## Changelog` section, `CHANGELOG.md` matches the choice, and local CI checks pass.
 
 ## 7. Ship
 
-Commit the setup on its own branch and ship it by the block you just wrote: this PR is the first run of the gate and of the size label. Report the files written, the files left alone, the instructions file's line count before the run and after, and what is left for the user to do by hand. Tell the user that `/ask-simian` says which of these files to edit for a later change.
+Commit the setup on its own branch and ship via `docs/agents/workflow.md` (this PR is the first live run of the gate and size label). Report files written, files untouched, the instructions file's line count before vs. after, and any manual steps left (such as branch protection). Remind the user that `/ask-simian` maps which file to edit later.

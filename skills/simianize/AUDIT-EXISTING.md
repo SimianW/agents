@@ -1,0 +1,27 @@
+# Auditing existing checks
+
+Disclosed reference for `simianize` when a repo already has its own review-tier script or file-length check.
+
+## Existing review-tier script (Step 2)
+
+A repo with `scripts/review-tier.py` (or `scripts/check-pr-body.py` supporting `tier`) keeps its tier classifier. Note the tier command for Step 5 (`python3 scripts/review-tier.py [base]`, say), then check two things separately:
+
+1. **PR-body gate:** verify the repo also has a PR-body check script and CI job (e.g., `scripts/check-pr-body.py` + `.github/workflows/pr-body.yml`). If it only has a standalone tier script and no body checker, install `check-pr-body.py` (or add body checking to the repo's gate) and its CI workflow, and note the exact `<body check command>` for Step 5.
+2. **Self-coverage:** each of these **gate files** must evaluate to tier 2, with no tier 0 rule (comment-only, docs, format) able to lower them:
+
+- CI workflows (`.github/workflows/`, or the CI host's equivalent);
+- the tier script and the PR-body check;
+- any helper whose answer can lower a tier (such as a comment-only detector).
+
+Show the user any gate file that falls short and offer to make it tier 2 with a unit test for each. Change only those rules; leave the rest of the script untouched.
+
+**Done when (existing script):** the repo has both a tier command and a working PR-body check + CI job; in a scratch worktree, appending a line of code to each gate file one at a time makes the tier command print `Review tier: 2` naming that file, and the script's tests pass.
+
+## Existing file-length check (Step 3)
+
+A repo that already enforces file length (e.g., ESLint `max-lines`) keeps its own check and skips installing `file-length.py` and `file-length.yml`, **provided** it also compares caps against the PR's base:
+
+- A PR that adds or raises a cap must fail unless its body contains a `- **Cap raised:**` item for that path (exact format in the `pr` skill).
+- A check that only inspects the working tree lets raised caps pass silently.
+
+If the repo's check lacks base-cap comparison, add it to the repo's own tooling (the PR-body check is a natural home since CI already passes it the PR body and base), with tests.

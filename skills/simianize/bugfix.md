@@ -22,6 +22,6 @@ Done when: the step 2 command passes, and so does every check in <the CI workflo
 
 ## 4. Review and ship
 
-Follow the Workflow rule in [AGENTS.md](../AGENTS.md). The PR body carries the step 1 result and the step 2 command.
+Follow [docs/agents/workflow.md](agents/workflow.md) to review and ship. The PR body carries the step 1 result and the step 2 command.
 
 Done when: the PR is open with the `- **Tier:** N` item in its Review section and, for tiers 1 and 2, an APPROVE recorded as `- **Verdict:** approved at <sha>`.

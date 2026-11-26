@@ -1,13 +1,39 @@
-## Workflow
+# Repo workflow
 
-- PRs: every change reaches `<base branch>` through a PR. Before merging, run `<tier command>` and put the tier it prints in the PR body's `## Review` section as `- **Tier:** N` (the `pr` skill); after an APPROVE, `review-loop` adds the `- **Verdict:**` and `- **Reviewers:**` items. CI's `pr-body` check enforces the Tier and Verdict items, and `PR_BODY="$(cat body.md)" python3 scripts/check-pr-body.py` runs it locally. Open the PR as a draft and mark it ready once that local check passes; `pr-body` runs only on ready PRs. Tier 0 merges on green CI; tiers 1 and 2 merge after `review-loop` returns APPROVE on the final diff, at the round budget the tier sets.
-- PR size: CI labels each PR from `size/XS` to `size/XXL` by the lines of code it changes; prose, lock files and binary files do not count. `python3 scripts/pr-size.py` prints the label locally. The label is CI's to set.
-- File length: every code file stays at or under <limit> lines. A file already over it is capped at its current length in `<caps location>`, and its cap only comes down. Before a file passes its limit, split it along a seam rather than raising the cap. A PR that adds or raises a cap carries one item per cap in its body, ``- **Cap raised:** `<path>` <old cap, or new> → <cap>: <reason>``, and the check fails without it. When a change shortens a capped file, lower its cap in the same PR, or drop it once the file is within the limit. `<length command>` runs the check locally.
-- Reviews: every gate review before merge, including when the user asks to review a PR or branch, runs `review-loop`. Only `implement` and `implement-spec` work adds a `code-review` pass before it (see New features).
-- Naming: use the terms in [GLOSSARY.md](GLOSSARY.md) for modules, tests and docs; add a term there when you coin one.
-- Test seams: [docs/agents/seams.md](docs/agents/seams.md) lists the agreed seams and the skills that test at them without asking the user.
-- Bug fixes: follow [docs/bugfix.md](docs/bugfix.md).
-- Dev docs: a module's or test's role lives in its own header comment. `<developer doc>` keeps setup, commands and gotchas, and links out per topic (API contracts, releasing) instead of growing.
-- Frontend: before any visible frontend change, use the `mockup-first` skill: show the user a mockup and wait for approval. Mockups are saved in `mockups/`. The UI's default language is <language>, and its fonts, colours and tokens are in `<path>`.
-- New features: `to-spec` publishes the spec to the issue tracker, labelled `ready-for-agent`. Then either `implement <spec>` builds it directly, or `to-tickets` splits it into tickets and `implement-spec <spec>` builds them. Their review runs `code-review` against the spec issue; sort its findings into fix now / follow-up issue / drop, one line of reason each, and stop for the user to choose. File each follow-up as a `ready-for-agent` issue. After the fixes, `review-loop` gates the final diff at its tier, with the approved refactors listed in its Intent. The work ends in a PR whose body carries `Closes #<issue>` and the Review section's Tier item. These four skills are user-only, so the user starts each one: when the work reaches a step, tell the user it is time and give the command to type, such as `/to-spec`.
-- Subagents: when a skill calls for a subagent, choose its model by the work it does, from the delegation table in your global instructions: an implementer or merger is Build, a reviewer is Hunt, a lab or browser runner is Drive, an explorer is Chore. A brief for delegated `implement` work names the `tdd` skill and the seams file.
+Disclosed procedure for pull requests, size/length checks, and multi-step feature delivery. Always-on invariants live in `AGENTS.md`.
+
+## Pull requests and review gate
+
+Every change reaches `<base branch>` through a PR.
+
+1. Run `<tier command>` and include `- **Tier:** N` under `## Review` in the PR body (use the `pr` skill). Open the PR as a **draft** (`pr-body` CI runs on ready PRs).
+2. For **Tiers 1 and 2**, run `review-loop` on the final diff (within the tier's round budget). On `APPROVE`, `review-loop` adds `- **Verdict:**` and `- **Reviewers:**` to the PR body. (**Tier 0** skips this step.)
+3. Run the local body check: `<body check command>` (e.g., `PR_BODY="$(cat body.md)" python3 scripts/check-pr-body.py`).
+4. Mark the draft PR **ready** once the local check passes, and merge only after CI is green.
+
+## PR size
+
+CI labels each PR from `size/XS` to `size/XXL` by lines of code changed (excluding prose, lock files, and binaries). Run `python3 scripts/pr-size.py` to check locally; CI owns setting the label.
+
+## File length ratchet
+
+Every code file stays at or under `<limit>` lines.
+
+- Split a growing file along a seam before raising a cap.
+- Existing files over the limit are capped in `<caps location>`; caps only ratchet down. When a change shortens a capped file, lower its cap (or drop it once within `<limit>`) in the same PR.
+- Adding or raising a cap requires a `- **Cap raised:**` item in the PR body (exact format in the `pr` skill), or CI fails.
+- Run `<length command>` locally before opening or updating a PR.
+
+## New features
+
+1. `to-spec` publishes the spec to the issue tracker labelled `ready-for-agent`.
+2. Build directly with `implement <spec>`, or split via `to-tickets` and build with `implement-spec <spec>`.
+3. Run `code-review` against the spec issue. Sort findings into **fix now / follow-up issue / drop** (one-line reason each) and stop for the user to choose. File each follow-up as a `ready-for-agent` issue.
+4. After fixes, run `review-loop` on the final diff at its tier (listing approved refactors in its Intent).
+5. Open a PR whose body includes `Closes #<issue>` and the `## Review` section's `Tier` item.
+
+`to-spec`, `to-tickets`, `implement`, and `implement-spec` are user-invoked: at each handoff, tell the user the exact command to type (e.g., `/to-spec`).
+
+## Delegation
+
+Role models, `target` values, brief rules, and the `Verify` checklist live in `~/.agents/delegation.md` (and are activated for full sessions via `/simian-mode`). Any brief for delegated `implement` work must name the `tdd` skill and `docs/agents/seams.md`.

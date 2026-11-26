@@ -1,6 +1,7 @@
 ---
 name: migrate-to-shoehorn
-description: Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data.
+description: Migrate TypeScript test files from as assertions to @total-typescript/shoehorn.
+disable-model-invocation: true
 ---
 
 # Migrate to Shoehorn

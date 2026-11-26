@@ -1,6 +1,7 @@
 ---
 name: so-explain
-description: Restate the user's goals and the underlying problem in your own words. Use when the user asks you to explain your understanding of what they are trying to achieve or solve.
+description: Restate the user's goals and underlying problem in plain language.
+disable-model-invocation: true
 ---
 
 # So explain

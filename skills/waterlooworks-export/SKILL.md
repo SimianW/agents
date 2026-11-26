@@ -1,6 +1,7 @@
 ---
 name: waterlooworks-export
-description: Use Computer Use or an available browser tool to open WaterlooWorks, hand off login to the user when needed, and export every posting in the selected job search to dated JSON files. Use for refreshing or archiving WaterlooWorks job details, not for ranking jobs or submitting applications.
+description: Export every posting from a WaterlooWorks job search to dated JSON files.
+disable-model-invocation: true
 ---
 
 # WaterlooWorks export

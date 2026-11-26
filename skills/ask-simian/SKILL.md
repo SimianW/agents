@@ -15,7 +15,7 @@ Find the user's question in the tables below, then read the file itself before y
 Every rule lives at one of four scopes. Settle the scope first; it picks the file.
 
 - **Everywhere**: the global steering in `~/.agents`, read in every session on every machine. Commit and push an edit there in the same task.
-- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there brings over a change to the `## Workflow` section, to `docs/agents/changelog.md` and to the size and file-length scripts and their workflows. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
+- **Every repo set up from now on**: a template in `~/.agents/skills/simianize/`. A repo that is already set up holds a copy. Re-running `/simianize` there updates `docs/agents/workflow.md`, the `## Workflow` block in `AGENTS.md`, `docs/agents/changelog.md`, and the size and file-length scripts and workflows. Every other file is the repo's own once written (`docs/bugfix.md`, `CODING_STANDARDS.md`, `docs/agents/`, the tier script), so make the same edit there by hand.
 - **This repo only**: the repo's own file.
 - **This machine only**: `~/.agents/machine.md`, which git does not track. Each machine has its own.
 
@@ -23,37 +23,36 @@ Every rule lives at one of four scopes. Settle the scope first; it picks the fil
 
 | To change | This repo | Every repo from now on |
 |---|---|---|
-| the PR and merge rule, or the new-feature flow | `AGENTS.md`, `## Workflow` | `simianize/workflow.md` |
-| whether a repo needs a mockup first, its UI language, or where its design tokens are | `AGENTS.md`, `## Workflow`, the Frontend bullet | `simianize/workflow.md` |
-| the PR size thresholds, or which paths count as code | the settings at the top of `scripts/pr-size.py` | `simianize/pr-size.py` |
+| the always-on workflow pointers in `AGENTS.md` (invariants, Frontend language/tokens) | `AGENTS.md`, `## Workflow` | `simianize/workflow-block.md` |
+| the detailed PR gate, PR size, cap-ratchet, or new-feature flow | `docs/agents/workflow.md` | `simianize/workflow.md` |
+| the PR size thresholds, or which paths count as code | top of `scripts/pr-size.py` | `simianize/pr-size.py` |
 | when the size label is set, or how CI sets it | `.github/workflows/pr-size.yml` | `simianize/pr-size.yml` |
-| the file length limit, or a file's cap | the settings at the top of `scripts/file-length.py` | `simianize/file-length.py` |
+| the file length limit, or a file's cap | top of `scripts/file-length.py` | `simianize/file-length.py` |
 | how CI runs the file-length check | `.github/workflows/file-length.yml` | `simianize/file-length.yml` |
-| which paths need more or less review | the settings at the top of `scripts/check-pr-body.py` (or the repo's own `scripts/review-tier.py`) | `review-loop/scripts/check-pr-body.py` |
+| which paths need more or less review | top of `scripts/check-pr-body.py` (or `scripts/review-tier.py`) | `review-loop/scripts/check-pr-body.py` |
+| how `/simianize` audits existing tier or file-length checks | | `simianize/AUDIT-EXISTING.md` |
 | a rule reviewers must enforce | `CODING_STANDARDS.md` | `simianize/coding-standards.md` |
 | where tests go, or the checks to run before a PR | `docs/agents/seams.md` | `simianize/seams.md` |
 | the bug-fix steps | `docs/bugfix.md` | `simianize/bugfix.md` |
-| how changelog entries are written, and when | `docs/agents/changelog.md`, and the Changelog bullet in `## Workflow` | `simianize/changelog.md` |
+| how changelog entries are written, and when | `docs/agents/changelog.md`, and the Changelog pointer in `## Workflow` | `simianize/changelog.md` |
 | where issues live, and the commands for them | `docs/agents/issue-tracker.md` | upstream `setup-matt-pocock-skills` |
 | the triage label names | `docs/agents/triage-labels.md`, and the labels on the tracker | upstream `setup-matt-pocock-skills` |
-| a domain term | `GLOSSARY.md`, with the `domain-modeling` skill | |
-| a decision that is hard to reverse | a new file in `docs/adr/`, with the `domain-modeling` skill | |
+| a domain term | `GLOSSARY.md`, with `domain-modeling` | |
+| a decision that is hard to reverse | a new file in `docs/adr/`, with `domain-modeling` | |
 | what `/simianize` sets up, or its order | | `simianize/SKILL.md` |
 
 These rules live only in `~/.agents`:
 
 | To change | Edit |
 |---|---|
-| which model does which kind of work | `~/.agents/claude/CLAUDE.md`, the Subagents table |
-| how a delegate's result is checked | `~/.agents/claude/CLAUDE.md`, Verify |
-| when a repo with no review rule needs a review | `~/.agents/AGENTS.md`, Reviews |
-| review rounds, the panel models, the reviewer and cross-check briefs | `~/.agents/skills/review-loop/SKILL.md` |
-| the PR body layout | `~/.agents/skills/pr/SKILL.md` |
-| the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and the pattern in every repo's `scripts/check-pr-body.py` |
-| how replies are written (bold, math, English tips, links to files) | `~/.agents/AGENTS.md` |
-| how a mockup is built, approved and verified | `~/.agents/skills/mockup-first/SKILL.md` |
-| the mockup rule for a repo that is not set up | `~/.agents/AGENTS.md`, Frontend changes |
-| a fact or rule for this machine only: which machine it is, how you reach it, the other machines it reaches, the local page address, its tools and paths | `~/.agents/machine.md` |
+| opt-in lead-and-delegate mode (~5 tool call threshold, thread hygiene) | `~/.agents/skills/simian-mode/SKILL.md` |
+| which model does which role, brief format, or Verify checklist | `~/.agents/delegation.md` |
+| default review triggers (for repos with no review rule), panel models, rounds, or briefs | `~/.agents/skills/review-loop/SKILL.md` |
+| the PR body layout or `Cap raised` format | `~/.agents/skills/pr/SKILL.md` |
+| the Tier or Verdict item's format | three places together: `review-loop/SKILL.md`, `pr/SKILL.md`, and every repo's `scripts/check-pr-body.py` |
+| how replies are written (bold, math, English tips, file links, local pages, pointers) | `~/.agents/AGENTS.md` |
+| how a mockup is built, approved, and verified | `~/.agents/skills/mockup-first/SKILL.md` |
+| a fact or rule for this machine only | `~/.agents/machine.md` |
 | the headings a new machine's file starts from | `~/.agents/machine.example.md` |
 | how `~/.agents` syncs, or which upstream skills carry local edits | `~/.agents/README.md` |
 
@@ -66,36 +65,39 @@ In a repo:
 | File | Holds | Read by |
 |---|---|---|
 | `CLAUDE.md` | the one line `@AGENTS.md` | Claude Code |
-| `AGENTS.md`, `## Agent skills` | pointers to the three `docs/agents/` files below | every engineering skill |
-| `AGENTS.md`, `## Workflow` | the PR gate, PR size, reviews, naming, the frontend rule, new features, subagent models, and pointers to seams, bug fixes, the developer doc and the changelog rules | every session |
-| `docs/agents/changelog.md` | how a changelog bullet is written, and when; only in a repo that ships versioned releases, behind the Changelog bullet in `## Workflow` | any PR the user can notice, and any release |
-| `CHANGELOG.md` | the entries themselves: `## [Unreleased]` on top, then one per release | users |
-| `docs/agents/issue-tracker.md` | where issues live and the commands for them | `to-spec`, `to-tickets`, `implement`, `triage`, `code-review` |
-| `docs/agents/triage-labels.md` | the label string for each triage role | `triage`, `to-spec`, `to-tickets` |
-| `docs/agents/domain.md` | how to read `GLOSSARY.md` and the ADRs | skills that explore the code |
-| `docs/agents/seams.md` | the agreed test seams, and the checks to run before a PR | `tdd`, `to-spec`, `implement`, `diagnosing-bugs` |
-| `docs/bugfix.md` | the bug-fix steps: Control, Red, Green, Review and ship | any bug fix |
-| `CODING_STANDARDS.md` | judgement-call rules a check can't make | `review-loop` (pasted into the brief), `code-review`; `retro` adds to it |
-| `GLOSSARY.md` | the repo's domain terms | every skill that names things |
-| `docs/adr/` | decisions that are hard to reverse | skills that explore the code |
-| `scripts/check-pr-body.py` | the tier of each path, and the check on a PR body's Review section | `review-loop`, CI |
-| `.github/workflows/pr-body.yml` | runs that check on every ready PR | CI |
-| `scripts/pr-size.py` | the size label for a change, and which paths count as code | CI; anyone, locally |
-| `.github/workflows/pr-size.yml` | sets the size label on every PR | CI |
-| `scripts/file-length.py` | the length limit for code files, and the cap of each file over it | CI; anyone, locally |
-| `.github/workflows/file-length.yml` | runs the file-length check on every PR and push to the default branch | CI |
+| `AGENTS.md`, `## Agent skills` | pointers to `docs/agents/` skill configs | every engineering skill |
+| `AGENTS.md`, `## Workflow` | concise invariants (PRs, file limit, glossary) and 1-line pointers to workflow, seams, bugfix, frontend, changelog | every session |
+| `docs/agents/workflow.md` | full PR gate commands, PR size, file-length ratchet, new-feature 4-skill flow, delegation note | opening/merging PRs, raising caps, new features, `/simian-mode` |
+| `docs/agents/changelog.md` | changelog rules and categories | user-visible PRs and releases |
+| `CHANGELOG.md` | release entries (`## [Unreleased]` + releases) | users |
+| `docs/agents/issue-tracker.md` | where issues live and commands for them | `to-spec`, `to-tickets`, `implement`, `triage`, `code-review` |
+| `docs/agents/triage-labels.md` | triage label names | `triage`, `to-spec`, `to-tickets` |
+| `docs/agents/domain.md` | how to read `GLOSSARY.md` and ADRs | skills that explore the code |
+| `docs/agents/seams.md` | agreed test seams and pre-PR checks | `tdd`, `to-spec`, `implement`, `diagnosing-bugs` |
+| `docs/bugfix.md` | bug-fix steps: Control, Red, Green, Review and ship | any bug fix |
+| `CODING_STANDARDS.md` | judgement-call rules checks can't make | `review-loop`, `code-review`; `retro` adds to it |
+| `GLOSSARY.md` | domain terms | every skill that names things |
+| `docs/adr/` | hard-to-reverse decisions | skills that explore the code |
+| `scripts/check-pr-body.py` | path tiers and PR-body Review check | `review-loop`, CI |
+| `.github/workflows/pr-body.yml` | runs PR-body check on ready PRs | CI |
+| `scripts/pr-size.py` | PR code-size label and non-code exclusions | CI, local checks |
+| `.github/workflows/pr-size.yml` | labels every PR by code size | CI |
+| `scripts/file-length.py` | code file line limit and cap ratchet | CI, local checks |
+| `.github/workflows/file-length.yml` | runs file-length check on PRs and pushes | CI |
 
 In `~/.agents`:
 
 | File | Holds |
 |---|---|
-| `claude/CLAUDE.md` | Claude Code's global rules: delegation, Verify |
-| `AGENTS.md` | global rules for Claude Code and Codex: reply formatting, English coaching, local pages, steering-file upkeep, Reviews |
-| `machine.md` | facts and rules for this machine only; not tracked |
-| `machine.example.md` | the headings a `machine.md` starts from |
-| `README.md` | how the checkout syncs across machines, and how upstream skills are updated |
-| `skills/simianize/` | `SKILL.md`, the setup steps; every other file is a template it writes from |
-| `skills/review-loop/` | `SKILL.md`, the review loop; `scripts/check-pr-body.py`, the gate's template |
-| `skills/review-loop-deprecated/` | the old single-reviewer loop (Sol, then Opus); runs only when asked by name |
-| `skills/pr/SKILL.md` | the PR body template, with the Review section |
-| other `skills/<name>/` | one skill each; `/ask-matt` maps the ones from `mattpocock/skills` |
+| `AGENTS.md` | lean global rules for Claude Code, Codex, and Antigravity: machine file, English coaching, reply formatting, local pages, thread titles, and pointers to `README.md`, `delegation.md`, and `review-loop` |
+| `claude/CLAUDE.md` | the one line `@~/.agents/AGENTS.md` |
+| `delegation.md` | shared disclosed reference: role → model/`target` table, brief rules, `Verify` checklist |
+| `machine.md` | untracked machine-only facts and rules |
+| `machine.example.md` | starter headings for `machine.md` |
+| `README.md` | sync architecture, machine-local excludes, and locally edited upstream skills |
+| `skills/simian-mode/` | opt-in user-invoked toggle for lead-and-delegate engineering workflow |
+| `skills/simianize/` | `SKILL.md` setup steps, `AUDIT-EXISTING.md`, `workflow-block.md`, `workflow.md`, and per-repo templates |
+| `skills/review-loop/` | `SKILL.md` (with default review triggers, panel, ledger, briefs) and `scripts/check-pr-body.py` |
+| `skills/review-loop-deprecated/` | old single-reviewer loop; runs only when asked by name |
+| `skills/pr/SKILL.md` | PR body template including `Review`, `Tier`, and `Cap raised` format |
+| other `skills/<name>/` | individual skills; `/ask-matt` maps those from `mattpocock/skills` |

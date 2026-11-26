@@ -5,7 +5,8 @@ Global steering for Claude Code, Codex and Antigravity, shared by every machine.
 | Path | Read by |
 |---|---|
 | `AGENTS.md` | Claude Code through `@~/.agents/AGENTS.md` in `claude/CLAUDE.md`; Codex through the symlink `~/.codex/AGENTS.md`; Antigravity through the symlink `~/.gemini/AGENTS.md` |
-| `claude/CLAUDE.md` | Claude Code, through the symlink `~/.claude/CLAUDE.md` |
+| `claude/CLAUDE.md` | Claude Code, through the symlink `~/.claude/CLAUDE.md` (single line `@~/.agents/AGENTS.md`) |
+| `delegation.md` | Disclosed shared reference for role models, `target` JSON, brief format, and `Verify` (read by `/simian-mode` and any skill or repo naming a role) |
 | `skills/<name>/` | Codex directly; Claude Code through the symlinks `~/.claude/skills/<name>`; Antigravity through the symlink `~/.gemini/config/skills` |
 | `.skill-lock.json` | the [skills CLI](https://github.com/vercel-labs/skills): where each upstream skill came from |
 | `bin/sync`, `systemd/`, `launchd/` | the timer (Linux) or launchd agent (macOS) that pulls this repo every 10 minutes |
@@ -50,7 +51,10 @@ git -C ~/.agents diff
 
 An update overwrites local edits to an upstream skill. These skills carry local edits:
 
-- `pr` (upstream `mattpocock/skills`): the `+`/`-` colour rule for `diff` blocks.
+- `pr` (upstream `mattpocock/skills`): the `+`/`-` colour rule for `diff` blocks, `Review` section, and `Cap raised` format.
+- `code-review` (upstream `mattpocock/skills`): tightened model-invoked description.
+- `wizard` (upstream `mattpocock/skills`): tightened model-invoked description.
+- `git-guardrails-claude-code`, `setup-pre-commit`, `migrate-to-shoehorn` (upstream `mattpocock/skills`): set `disable-model-invocation: true` with concise human-facing descriptions.
 
 Restore those edits with `git checkout -p` before you commit. Skills not listed in `.skill-lock.json` are authored here and have no upstream.
 

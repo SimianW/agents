@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Use before pushing or merging a change that meets the AGENTS.md Reviews triggers or the repo's review rule, or when the user says "review loop".
+description: Use before pushing or merging a change that meets the repo's review rule or default triggers (sensitive areas, data, infra, public interfaces, >300 LOC), or when the user says "review loop".
 ---
 
 # review-loop
@@ -21,8 +21,8 @@ creep, and push back with evidence.
 | Sol | `gpt-6.2-sol`, high, fast | `S` | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high", "serviceTier": "priority"}}` |
 | Opus | `claude-opus-5-5`, high | `O` | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 
-This table sets the reviewers for this skill, in place of the CLAUDE.md
-Hunt row. Swap a seat only when the user names another model.
+This table sets the reviewers for this skill, in place of the Hunt row in
+`~/.agents/delegation.md`. Swap a seat only when the user names another model.
 
 **Routing.** In T3, call `orchestrator_capabilities` once. Every panel and
 cross-check call is a new `delegate_task` (`role: "review"`,
@@ -51,10 +51,26 @@ One row per merged finding, kept from round 1 to the report:
 Also count each seat's calls (panel plus cross-check) and record usage when
 a tool returns it. Never guess either.
 
+## Default triggers
+
+When the repo sets its own review rule, follow it instead. Otherwise run
+`review-loop` before pushing or merging any change that meets a trigger below:
+
+| Trigger | The change |
+|---|---|
+| **Sensitive areas** | touches auth, sessions, secrets, permissions, payments, or user data privacy |
+| **Data** | adds or edits a database migration or schema, or deletes data |
+| **Infrastructure** | changes deploy, CI, Docker/compose, hooks, cron/launchd/systemd, or sync/install scripts |
+| **Interfaces** | changes a public API, CLI, or config format other code or machines depend on |
+| **Size** | changes more than ~300 lines of behavior code (excluding generated, vendored, moved/imported files, prose, or throwaway prototypes) |
+
+For anything else, your own verification suffices. If you skip review on a
+change close to a trigger, say so in one line of your report.
+
 ## Budget
 
-- If the repo has a tier script, run the tier command its Workflow block
-  names: `python3 scripts/review-tier.py [base]` or
+- If the repo has a tier script, run the tier command its `AGENTS.md` or
+  `docs/agents/workflow.md` names: `python3 scripts/review-tier.py [base]` or
   `python3 scripts/check-pr-body.py tier [base]`. Tier 0: no review.
   Tier 1: up to 2 rounds. Tier 2: up to 3.
 - No tier script: 2 rounds; 3 for security, permissions, auth, data loss,

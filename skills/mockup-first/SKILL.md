@@ -1,6 +1,6 @@
 ---
 name: mockup-first
-description: Show the user a mockup and get approval before any frontend change. Use before building a new page or screen, or changing UI layout, styling, interaction, or visuals.
+description: Show a self-contained HTML mockup and wait for user approval before any visible frontend change (new screen, layout, styling, interaction, or visuals).
 ---
 
 # Mockup first

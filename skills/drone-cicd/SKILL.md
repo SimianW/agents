@@ -1,6 +1,7 @@
 ---
 name: drone-cicd
-description: Configure Drone CI/CD for a repository using an existing self-hosted Docker runner, container registry, and Docker Compose deployment. Use when adding or adapting Drone pipelines or moving a project onto this host's deployment workflow.
+description: Configure Drone CI/CD pipelines for a self-hosted Docker runner and Compose deployment.
+disable-model-invocation: true
 ---
 
 # Drone CI/CD
