@@ -22,8 +22,8 @@ under a `## Review` heading at the end of the body (layout in the `pr` skill):
 The check enforces:
 
 1. The first Tier item gives N in 0..MAX_TIER, and N is at least the tier computed from the changed
-   files against base. Agent steering files (`AGENTS.md`, `CLAUDE.md`, `CODING_STANDARDS.md`,
-   `docs/bugfix.md`, `docs/agents/*`) are tier 1, not tier 0.
+   files against base. Agent steering files (`AGENTS.md` or `CLAUDE.md` in any folder,
+   `CODING_STANDARDS.md`, `docs/bugfix.md`, `docs/agents/*`) are tier 1, not tier 0.
 2. When the computed tier is at least REVIEW_FROM_TIER, the last Verdict item reads
    `approved at <sha> (diff <12-hex>)` or `overridden by <user> at <sha> (diff <12-hex>)`
    (7 to 40 hex digits for sha, 12 hex digits for diff hash, backticks optional;
@@ -81,12 +81,15 @@ HIGH_RISK_FILES = (
 )
 
 # Tier 1: agent steering files are executable instructions for agents, never tier 0.
+# AGENTS.md and CLAUDE.md count in any folder (tools read nested copies too).
+AGENT_STEERING_BASENAMES = (
+    "AGENTS.md",
+    "CLAUDE.md",
+)
 AGENT_STEERING_PREFIXES = (
     "docs/agents/",
 )
 AGENT_STEERING_FILES = (
-    "AGENTS.md",
-    "CLAUDE.md",
     "CODING_STANDARDS.md",
     "docs/bugfix.md",
 )
@@ -224,10 +227,20 @@ def git_bytes(*args, cwd=None):
     return result.stdout
 
 
+# Canonical diff options: local git config (diff.noprefix, diff.mnemonicPrefix, diff.relative,
+# diff.external, diff.algorithm, diff.context, color) and .gitattributes textconv must never change
+# the hash. review-loop's SKILL.md fallback one-liner uses these same flags; change both together.
+CANONICAL_DIFF = (
+    "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.relative=false",
+    "diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-color",
+    "--src-prefix=a/", "--dst-prefix=b/", "--diff-algorithm=myers", "-U3",
+)
+
+
 def diff_hash(base_rev, head_rev, root):
-    """Return 12-char lowercase SHA-256 hex digest of the binary diff from base_rev to head_rev
-    (or working tree when head_rev is None)."""
-    args = ["diff", "--binary", base_rev]
+    """Return 12-char lowercase SHA-256 hex digest of the canonical binary diff from base_rev to
+    head_rev (or working tree when head_rev is None)."""
+    args = [*CANONICAL_DIFF, base_rev]
     if head_rev is not None:
         args.append(head_rev)
     args.append("--")
@@ -241,7 +254,11 @@ def classify_path(path, base_rev, root, conflicted=False):
         return special
     if path.startswith(HIGH_RISK_PREFIXES) or path in HIGH_RISK_FILES:
         return MAX_TIER, f"{path} (high risk)"
-    if path.startswith(AGENT_STEERING_PREFIXES) or path in AGENT_STEERING_FILES:
+    if (
+        PurePosixPath(path).name in AGENT_STEERING_BASENAMES
+        or path.startswith(AGENT_STEERING_PREFIXES)
+        or path in AGENT_STEERING_FILES
+    ):
         return 1, f"{path} (agent instructions)"
     if path.startswith(CHECKS_ONLY_PREFIXES) or PurePosixPath(path).suffix in CHECKS_ONLY_SUFFIXES:
         return 0, f"{path} (docs or assets)"
@@ -338,7 +355,7 @@ def check_after_review(sha, expected_hash, base, root):
     if actual_hash != expected_hash:
         return [
             f"Verdict diff hash {expected_hash} does not match commit {sha}'s diff against base ({actual_hash}); "
-            "recompute with `python3 scripts/check-pr-body.py diff-hash` after review-loop approves"
+            f"the Verdict must carry the hash the approving seats reviewed, `diff-hash {base} {sha}`"
         ], []
     hash_pass = f"diff hash {actual_hash} matches commit {sha}"
     reviewed, conflicted = replayed_tree(full, base, root)

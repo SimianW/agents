@@ -26,4 +26,4 @@ Done when: the step 2 check passes, and every local test, lint, and file-length 
 
 Follow [docs/agents/workflow.md](agents/workflow.md) to review, run the PR-body check, and ship. The PR body carries the step 1 result and the step 2 command (or manual repro steps).
 
-Done when: the PR is open with `- **Tier:** N` in its `## Review` section, passes the local PR-body check, and—for tiers 1 and 2—records `review-loop` `APPROVE` as `- **Verdict:** approved at \`<sha>\` (diff \`<12-hex>\`)`.
+Done when: the PR is open with `- **Tier:** N` in its `## Review` section, passes the local PR-body check, and—for tiers 1 and 2—records `review-loop` `APPROVE` as ``- **Verdict:** approved at `<sha>` (diff `<12-hex>`)``.

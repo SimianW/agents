@@ -35,8 +35,7 @@ Use this template for writing the PR body:
 
 - **Tier:** <N>
 - **Cap raised:** `<path>` <old cap, or new> → <cap>: <reason>
-- **Verdict:** approved at `<sha>` (diff `<12-hex>`)
-<Reviewers item and folded findings, filled by review-loop>
+<Verdict and Reviewers items, then folded findings, filled by review-loop after APPROVE>
 ```
 
 ## Sections
@@ -187,6 +186,6 @@ The blast radius is the potential impact or scope of the changes introduced by t
 
 ### Review
 
-Include this section when the repo sets a review tier or `review-loop` ran; it goes last, above the model blurb. CI scripts match the Tier, Cap raised and Verdict items, so keep them in exactly the template's shape. Drop the Tier item when the repo has no review tier.
+Include this section when the repo sets a review tier or `review-loop` ran; it goes last, above the model blurb. CI scripts match the Tier, Cap raised and Verdict items, so keep them in exactly the template's shape. Drop the Tier item when the repo has no review tier. Never pre-fill the Verdict item on a draft PR: `review-loop` writes it after it approves.
 
 Write one Cap raised item for each file-length cap the PR adds or raises against its base (an ESLint `max-lines` cap, or `CAPS` in `scripts/file-length.py`): the path in backticks, the cap on the base (`new` when the PR adds it), `→`, the cap now, and why the file cannot be split now. Drop the item when the PR adds or raises no cap.

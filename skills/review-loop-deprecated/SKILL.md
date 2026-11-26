@@ -11,8 +11,8 @@ reference and for runs the user asks for by name.
 
 This is a workflow for making your code changes more correct before (or
 sometimes after) filing a pull request: a reviewer model checks the diff in a
-loop. The reviewer runs the model in the **Hunt** row of the global CLAUDE.md
-table. A final pass by Opus 5.5 follows the reviewer's approval.
+loop. The reviewer runs the model in the **Hunt** row of
+`~/.agents/delegation.md`. A final pass by Opus 5.5 follows the reviewer's approval.
 
 Make the most minimal possible changes to appease the reviewers. Be careful
 of scope creep and don't be scared to push back.
@@ -59,7 +59,7 @@ missing or pre-failing checks in the brief.
 ## 2. Start the reviewer
 
 In T3, call `orchestrator_capabilities`. Use the Hunt model and options from
-the CLAUDE.md table unless the user named another. Record provider, model, and
+`~/.agents/delegation.md` unless the user named another. Record provider, model, and
 effort only if exposed. Use `delegate_task` every round (`role: "review"`,
 `mode: "async"`). Save `taskId`. New `clientRequestId` per round.
 `childThreadId` is storage, not the next target. Do not use

@@ -79,8 +79,9 @@ change close to a trigger, say so in one line of your report.
   unless the user names more.
 - A round is one panel pass plus its merge and cross-check. Cross-check
   calls are part of their round.
-- Round 1 leaving only nits ends the loop. Declined nits and comment, doc,
-  or format-only fixes need no new round.
+- Round 1 leaving only nits ends the loop, unless a nit fix touches a
+  tier 1+ file (step 6). Declined nits and fixes to tier 0 files only need
+  no new round.
 - A merge round (see After approval) does not count against the budget.
 
 ## 1. Scope
@@ -95,13 +96,23 @@ Find the base after `git fetch origin`:
   only if clean. Confirm `HEAD` is the PR head, or ahead only by this
   change. Base: `git merge-base HEAD origin/<baseRefName>`.
 - Local: `git merge-base HEAD origin/<default-branch>`. No remote: a base
-  the user names, or `HEAD` for uncommitted changes only.
+  the user names, or the commit the uncommitted change started from.
 
-The change is base to working tree in those paths, with untracked files.
-Use one diff command all rounds. Compute the 12-char diff hash with
-`python3 scripts/check-pr-body.py diff-hash <base>` (or
-`git diff --binary <base> | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"`
-when no script exists). State intent and out-of-scope in 1-2 sentences.
+Commit the change in those paths before round 1, untracked files included,
+so nothing reviewed sits outside the hash. The change is `<base>..<head>`,
+where `<head>` is that commit's sha. Use one diff command all rounds.
+Compute the 12-char diff hash of exactly that commit with
+`python3 scripts/check-pr-body.py diff-hash <base> HEAD`, or, when the repo
+has no script or its script has no `diff-hash` mode, with this one-liner
+(the script's canonical flags, so both give the same hash):
+
+```
+git -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers -U3 <base> HEAD -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
+```
+
+State intent and out-of-scope in 1-2 sentences. Copy the PR body's (or
+draft evidence's) `Existing tests modified/removed` entry into the brief's
+`Test changes:` line, or write `None`.
 Run covering checks; send only code that passes them. If a check needs
 set-up (dependencies, browsers), do it before round 1 and say so in
 `Checks:`, so every seat can rerun it. Note missing or pre-failing checks in
@@ -124,19 +135,21 @@ says `Standards`; otherwise drop that block and the `### Standards` table.
 
 ```
 Review only. Do not edit, commit, push, comment on PRs, or start subagents.
-Repo: <abs path> Base: <sha> Tier: <tier, if a tier script exists>
+Repo: <abs path> Base: <sha> Head: <sha> Tier: <tier, if a tier script exists>
 Intent: <intent> Out of scope: <scope> Checks: <results>
-See: git diff <base> [-- <paths>]; git status --short (read untracked).
-Compute the 12-char diff hash (`python3 scripts/check-pr-body.py diff-hash <base>`,
-or `git diff --binary <base> | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"`)
-and include it in your Verdict header.
+Test changes: <Existing tests modified/removed entry from PR body or draft evidence, or "None">
+See: git diff <base> <head> [-- <paths>]
+Compute the 12-char diff hash of exactly <base>..<head> and put it in your Verdict header:
+python3 scripts/check-pr-body.py diff-hash <base> <head>
+or, with no script or no diff-hash mode:
+git -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
 Standards (apply every rule to the diff):
 <full text of CODING_STANDARDS.md>
 Read surrounding code. Find bugs, broken callers, mismatch with intent.
 Skip formatting unless it hides a bug. Hold to the smallest change. Flag code,
 tests, or guards the intent does not need. Flag unexplained removal or weakening
-of existing test assertions as `should`. Other paths, rare cases, small perf,
-extra compat: nits.
+of existing test assertions as `should`; `Test changes:` gives the author's
+reasons. Other paths, rare cases, small perf, extra compat: nits.
 blocker = intended case wrong. should = real bug on a real path, in intent. nit = rest.
 A real path is a user action or a call the repo's own code makes. A defect only
 tests or hand-built inputs reach is a nit unless the intent names that path.
@@ -182,8 +195,8 @@ seat's name left out.
 
 ```
 Check findings only. Do not edit, commit, push, or start subagents.
-Repo: <abs path> Base: <sha> Intent: <intent>
-See: git diff <base> [-- <paths>]
+Repo: <abs path> Base: <sha> Head: <sha> Intent: <intent>
+See: git diff <base> <head> [-- <paths>]
 For each finding, read the code and decide confirm, refute, or unsure.
 Back confirm or refute with evidence: a file:line trace, a repro, or test output.
 
@@ -223,16 +236,20 @@ one-line change inside the intent.
   mark its findings `narrowed` and file them as one follow-up issue. If the
   user's request named that branch, ask before cutting it.
 
-Update the ledger. Re-run checks and `git diff --shortstat <base>`. If
+Update the ledger. Commit the fixes; that commit is the new `<head>`.
+Re-run checks and `git diff --shortstat <base> HEAD`. If
 review grew the diff, cut first. Agree only on the evidence, never to end
 the loop.
 
 ## 6. Next round
 
-Start one only if budget remains and behavior code changed in step 5 or a
-finding is `disputed`. Start every seat in parallel with a fresh call: the
-round 1 brief, the ledger (`fixed:` / `disputed:` / `declined:` + evidence),
-the same base diff, and the change since last round. Each seat's scope is:
+Start one only if budget remains and a finding is `disputed` or step 5
+changed any file at tier 1 or above: behavior code, or an agent steering file
+(`AGENTS.md` or `CLAUDE.md` in any folder, `CODING_STANDARDS.md`,
+`docs/bugfix.md`, `docs/agents/*`). Start every seat in parallel with a fresh
+call: the round 1 brief with the new `<head>`, the ledger (`fixed:` /
+`disputed:` / `declined:` + evidence), the same base, and the change since
+last round. Each seat's scope is:
 
 - its own ids that are fixed, open, or disputed;
 - its own blockers and shoulds you declined or downgraded, so it can answer;
@@ -246,8 +263,11 @@ steps 3-5.
 
 ## 7. Stop and ship
 
-**Approved:** the last round reviewed the current behavior diff, and after
-its merge and cross-check no blocker or should is `open` or `disputed`.
+**Approved:** the last round reviewed the committed `<sha>` you will record
+in the PR, every approving seat's Verdict header hash equals
+`diff-hash <base> <sha>` for that commit, and after its merge and
+cross-check no blocker or should is `open` or `disputed`. A hash mismatch
+means a seat reviewed other content: re-run that seat on `<sha>`.
 A seat's CHANGES verdict does not block when all of its findings were
 declined or refuted. You have no concern of your own.
 
@@ -265,16 +285,16 @@ lines each. Budget end is not approval. The user decides among:
 **Override:** if, after a stuck report, the user explicitly says to ship
 anyway, the user is the last reviewer and the current behavior diff counts
 as approved. Never override on your own. Write the Verdict as
-`overridden by <user> at \`<sha>\` (diff \`<12-hex>\`)`, with the user's
+``overridden by <user> at `<sha>` (diff `<12-hex>`)``, with the user's
 login and no `@`, and mark each open item `overridden` in the ledger.
 
 Pushing to a **draft PR** branch before review is allowed so CI runs early,
 when the user asked to open or ship a PR. **Marking a PR ready for review**
 or pushing behavior changes to an already-ready PR requires approval first.
 Never move `Verdict:` to a commit the panel did not review—agent steering
-files (`AGENTS.md`, `CLAUDE.md`, `CODING_STANDARDS.md`, `docs/bugfix.md`,
-`docs/agents/*`) are tier 1 and require re-review after fixes. If you update
-a PR body after approval, add the Verdict and Reviewers items and a folded
+files (`AGENTS.md` or `CLAUDE.md` in any folder, `CODING_STANDARDS.md`,
+`docs/bugfix.md`, `docs/agents/*`) are tier 1 and require re-review after
+fixes. If you update a PR body after approval, add the Verdict and Reviewers items and a folded
 ledger under the body's `## Review` section, after its Tier item (layout in
 the `pr` skill; add the section above the model blurb if the body has none):
 
@@ -294,9 +314,15 @@ the `pr` skill; add the section above the model blurb if the body has none):
 ```
 
 Keep the Verdict item in exactly this shape: CI scripts match it and verify
-`<12-hex>` against `git diff --binary <merge-base> <sha>` (commit the approved
-diff first, then compute `<12-hex>` with `python3 scripts/check-pr-body.py diff-hash`). `<sha>` is the short hash of
-the commit holding the diff the panel approved or the user overrode. Drop
+`<12-hex>` against the canonical diff of `<merge-base>..<sha>`. `<sha>` is
+the short hash of the commit the panel approved or the user overrode;
+`<12-hex>` is the hash you verified against the approving seats' headers
+under Approved, never one recomputed over a commit no seat reviewed. Write
+the ``(diff `<12-hex>`)`` suffix when the repo's `scripts/check-pr-body.py`
+has a `diff-hash` mode, or the repo has no checker. A repo whose checker
+predates `diff-hash` keeps the plain `` approved at `<sha>` `` shape (and
+`` overridden by <user> at `<sha>` ``), since its CI rejects the suffix, until
+`/simianize` upgrades the checker. Drop
 `, <n> narrowed` or `, <n> overridden` when there is none. A later commit
 that changes any tier ≥ 1 file needs a new loop, a new `<sha>`, and a new
 diff hash; a merge of the base branch follows After approval instead. `×<a>`
@@ -339,7 +365,7 @@ When the base branch moves after approval:
   round**. Every seat reviews only the conflict resolution
   (`git show --remerge-diff <merge>`), and the round does not count against
   the budget. APPROVE: set the Verdict to the merge commit and its diff hash
-  (`python3 scripts/check-pr-body.py diff-hash`). A confirmed
+  (`python3 scripts/check-pr-body.py diff-hash origin/<base> <merge>`). A confirmed
   blocker or should: fix it in a normal round, which counts; with no budget
   left, the loop is Stuck.
 - An overridden PR whose check fails after the merge goes back to the user

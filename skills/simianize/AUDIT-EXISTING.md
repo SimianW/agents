@@ -1,12 +1,12 @@
 # Auditing existing checks
 
-Disclosed reference for `simianize` when a repo already has its own review-tier script or file-length check.
+Disclosed reference for `simianize` when a repo already has its own review-tier script, PR-body check, or file-length check.
 
 ## Existing review-tier script (Step 2)
 
 A repo with `scripts/review-tier.py` (or `scripts/check-pr-body.py` supporting `tier`) keeps its tier classifier. Note the tier command for Step 5 (`python3 scripts/review-tier.py [base]`, say), then check two things separately:
 
-1. **PR-body gate:** verify the repo also has a PR-body check script and CI job (e.g., `scripts/check-pr-body.py` + `.github/workflows/pr-body.yml`). If it only has a standalone tier script and no body checker, install `check-pr-body.py` (or add body checking to the repo's gate) and its CI workflow, and note the exact `<body check command>` for Step 5.
+1. **PR-body gate:** verify the repo also has a PR-body check script and CI job (e.g., `scripts/check-pr-body.py` + `.github/workflows/pr-body.yml`). If it only has a standalone tier script and no body checker, keep one tier classifier: either add PR-body checking to that script, or install `check-pr-body.py` with its `classify` delegating to the repo's tier script for both the full PR and the changes after the approved commit. Never install a second, independent classifier with unfilled `TODO(repo)` defaults. Add the CI workflow and note the exact `<body check command>` for Step 5.
 2. **Self-coverage:** each of these **gate files** must evaluate to tier 2, with no tier 0 rule (comment-only, docs, format) able to lower them:
 
 - CI workflows (`.github/workflows/`, or the CI host's equivalent);
@@ -15,7 +15,20 @@ A repo with `scripts/review-tier.py` (or `scripts/check-pr-body.py` supporting `
 
 Show the user any gate file that falls short and offer to make it tier 2 with a unit test for each. Change only those rules; leave the rest of the script untouched.
 
-**Done when (existing script):** the repo has both a tier command and a working PR-body check + CI job; in a scratch worktree, appending a line of code to each gate file one at a time makes the tier command print `Review tier: 2` naming that file, and the script's tests pass.
+**Done when (existing script):** the repo has both a tier command and a working PR-body check + CI job, and the PR-body check gets its tier from the same classifier as the tier command (on the same change, both name the same tier); in a scratch worktree, appending a line of code to each gate file one at a time makes the tier command print `Review tier: 2` naming that file, and the script's tests pass.
+
+## Upgrading an existing `check-pr-body.py`
+
+When `/simianize` runs again on a repo that already has `scripts/check-pr-body.py`, compare it with the template in `~/.agents/skills/review-loop/scripts/check-pr-body.py` and upgrade these generic parts from the template:
+
+- `VERDICT_ITEM` and `check_body`: the ``(diff `<12-hex>`)`` suffix;
+- the `diff-hash` mode and `diff_hash`, with the template's canonical diff flags (`CANONICAL_DIFF`);
+- `check_after_review`: the diff-hash match before the after-approval check;
+- the `AGENT_STEERING_*` rules (`AGENTS.md` and `CLAUDE.md` by basename, in any folder).
+
+Keep the repo's own `DEFAULT_BASE`, `HIGH_RISK_*`, `CHECKS_ONLY_*`, and `classify_special` as they are. Until the upgrade lands, PRs keep the plain `` approved at `<sha>` `` Verdict the old checker accepts.
+
+**Done when (upgrade):** `diff-hash <base> HEAD` prints the same hash as the template's, a Verdict with the right diff hash passes and a wrong one fails, a nested `AGENTS.md` is tier 1, and each gate file is still tier 2.
 
 ## Existing file-length check (Step 3)
 
