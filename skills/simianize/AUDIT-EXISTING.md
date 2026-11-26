@@ -22,7 +22,7 @@ Show the user any gate file that falls short and offer to make it tier 2 with a 
 When `/simianize` runs again on a repo that already has a PR-body checker, whether `scripts/check-pr-body.py` or a check integrated into `scripts/review-tier.py` (or another script the `<body check command>` names), compare it with the template in `~/.agents/skills/review-loop/scripts/check-pr-body.py` and upgrade these generic parts from the template (in an integrated checker, add the equivalent functions and modes to that script rather than installing a second classifier):
 
 - `VERDICT_ITEM` and `check_body`: the ``(diff `<12-hex>`)`` suffix;
-- the `diff-hash` mode and `diff_hash`, with the template's canonical diff flags (`CANONICAL_DIFF`);
+- the `diff-hash` mode (`rev` defaults to `HEAD`) and the tree-pair `diff_hash`, which hashes `<merge-base>^{tree}..<rev>^{tree}` instead of `git diff` output, so no local git config changes it;
 - `check_after_review`: the diff-hash match before the after-approval check;
 - the `AGENT_STEERING_*` rules (`AGENTS.md` and `CLAUDE.md` by basename, in any folder).
 

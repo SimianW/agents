@@ -7,11 +7,15 @@ in CI on every pull request (example workflow at the bottom of this file).
 Three modes:
 
     python3 scripts/check-pr-body.py tier [base]                # print `Review tier: N` for HEAD's changes
-    python3 scripts/check-pr-body.py diff-hash [base] [rev]     # print 12-char SHA-256 of `<merge-base>..<rev>` diff
+    python3 scripts/check-pr-body.py diff-hash [base] [rev]     # print the 12-char diff hash of `<merge-base>..<rev>`
     PR_BODY=... python3 scripts/check-pr-body.py [base]         # check a PR body (CI)
 
-`base` defaults to DEFAULT_BASE. The PR body records the review as a Markdown list, by convention
-under a `## Review` heading at the end of the body (layout in the `pr` skill):
+`base` defaults to DEFAULT_BASE and `rev` to HEAD. The diff hash is the first 12 hex digits of
+the SHA-256 of `<merge-base>^{tree}..<rev>^{tree}` (the two full tree ids and a newline), so no
+local `git diff` or `core.*` setting can change it.
+
+The PR body records the review as a Markdown list, by convention under a `## Review` heading at
+the end of the body (layout in the `pr` skill):
 
     ## Review
 
@@ -219,35 +223,16 @@ def changed_since(rev, root):
     return sorted({path for path in (tracked + untracked).split("\0") if path})
 
 
-def git_bytes(*args, cwd=None):
-    result = subprocess.run(["git", *args], capture_output=True, cwd=cwd)
-    if result.returncode != 0:
-        message = result.stderr.decode("utf-8", "replace").strip()
-        raise GitError(f"git {' '.join(args)} failed: {message}")
-    return result.stdout
-
-
-# Canonical diff options: local git config (core.quotePath, core.abbrev, diff.renames,
-# diff.noprefix, diff.mnemonicPrefix, diff.relative, diff.external, diff.algorithm, diff.context,
-# diff.interHunkContext, diff.orderFile, color) and .gitattributes textconv must never change the
-# hash. review-loop's SKILL.md fallback one-liner uses these same flags; change both together.
-CANONICAL_DIFF = (
-    "-c", "core.quotePath=true", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false",
-    "-c", "diff.relative=false",
-    "diff", "--binary", "--full-index", "--no-renames", "--no-ext-diff", "--no-textconv",
-    "--no-color", "--src-prefix=a/", "--dst-prefix=b/", "--diff-algorithm=myers",
-    "--inter-hunk-context=0", "-O/dev/null", "-U3",
-)
-
-
 def diff_hash(base_rev, head_rev, root):
-    """Return 12-char lowercase SHA-256 hex digest of the canonical binary diff from base_rev to
-    head_rev (or working tree when head_rev is None)."""
-    args = [*CANONICAL_DIFF, base_rev]
-    if head_rev is not None:
-        args.append(head_rev)
-    args.append("--")
-    return hashlib.sha256(git_bytes(*args, cwd=root)).hexdigest()[:12]
+    """Return 12-char lowercase SHA-256 hex digest of `<base_tree>..<head_tree>`.
+
+    Uses Git's own full tree object IDs from `git rev-parse --verify <rev>^{tree}`, so the
+    digest uniquely identifies the committed tree change and is completely immune to all
+    local `git diff` and `core.*` configuration.
+    """
+    base_tree = git("rev-parse", "--verify", f"{base_rev}^{{tree}}", cwd=root).strip()
+    head_tree = git("rev-parse", "--verify", f"{head_rev}^{{tree}}", cwd=root).strip()
+    return hashlib.sha256(f"{base_tree}..{head_tree}\n".encode("ascii")).hexdigest()[:12]
 
 
 def classify_path(path, base_rev, root, conflicted=False):
@@ -398,9 +383,8 @@ def main(argv):
     try:
         root = git("rev-parse", "--show-toplevel").strip()
         if mode == "diff-hash":
-            rev = args[1] if len(args) == 2 else None
-            target = rev or "HEAD"
-            mb = git("merge-base", target, base, cwd=root).strip()
+            rev = args[1] if len(args) == 2 else "HEAD"
+            mb = git("merge-base", rev, base, cwd=root).strip()
             print(diff_hash(mb, rev, root))
             return 0
         root, merge_base, paths = collect(base)

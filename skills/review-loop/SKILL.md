@@ -106,11 +106,12 @@ mode of the repo's configured PR-body checker (`scripts/check-pr-body.py`,
 or an integrated check such as `scripts/review-tier.py`), e.g.
 `python3 scripts/check-pr-body.py diff-hash <base> <head>`, or, when the
 repo has no checker or its checker has no `diff-hash` mode, with this
-one-liner (the template checker's canonical flags, so both give the same
-hash):
+one-liner. Both hash `<merge-base>^{tree}..<head>^{tree}` (the two full
+tree ids, not a `git diff`), so they give the same hash and no local git
+config can change it:
 
 ```
-git -c core.quotePath=true -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --full-index --no-renames --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers --inter-hunk-context=0 -O/dev/null -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
+python3 -c 'import hashlib,subprocess,sys; g=lambda *a:subprocess.check_output(["git",*a],text=True).strip(); b,h=g("merge-base",sys.argv[2],sys.argv[1]),sys.argv[2]; t=lambda r:g("rev-parse","--verify",r+"^{tree}"); print(hashlib.sha256((t(b)+".."+t(h)+"\n").encode()).hexdigest()[:12])' <base> <head>
 ```
 
 State intent and out-of-scope in 1-2 sentences. Copy the PR body's (or
@@ -145,7 +146,7 @@ See: git diff <base> <head> [-- <paths>]
 Compute the 12-char diff hash of exactly <base>..<head> and put it in your Verdict header:
 <the repo's PR-body checker diff-hash command, e.g. python3 scripts/check-pr-body.py diff-hash <base> <head>>
 or, with no checker or no diff-hash mode:
-git -c core.quotePath=true -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --full-index --no-renames --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers --inter-hunk-context=0 -O/dev/null -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
+python3 -c 'import hashlib,subprocess,sys; g=lambda *a:subprocess.check_output(["git",*a],text=True).strip(); b,h=g("merge-base",sys.argv[2],sys.argv[1]),sys.argv[2]; t=lambda r:g("rev-parse","--verify",r+"^{tree}"); print(hashlib.sha256((t(b)+".."+t(h)+"\n").encode()).hexdigest()[:12])' <base> <head>
 Standards (apply every rule to the diff):
 <full text of CODING_STANDARDS.md>
 Read surrounding code. Find bugs, broken callers, mismatch with intent.
@@ -322,7 +323,7 @@ the `pr` skill; add the section above the model blurb if the body has none):
 ```
 
 Keep the Verdict item in exactly this shape: CI scripts match it and verify
-`<12-hex>` against the canonical diff of `<merge-base>..<sha>`. `<sha>` is
+`<12-hex>` against the hash of `<merge-base>^{tree}..<sha>^{tree}`. `<sha>` is
 the short hash of the commit the panel approved or the user overrode;
 `<12-hex>` is the hash you verified against the approving seats' headers
 under Approved, never one recomputed over a commit no seat reviewed. Write
