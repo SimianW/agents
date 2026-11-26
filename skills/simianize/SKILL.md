@@ -33,7 +33,7 @@ Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-track
 
 ## 2. Gate
 
-If the repo already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with `tier` mode), read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing review-tier script" (and "Upgrading an existing `check-pr-body.py`" when the repo has that file), then continue to Step 3.
+If the repo already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with `tier` mode), read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing review-tier script" (and "Upgrading an existing PR-body checker" when the repo has one, standalone or integrated into its tier script), then continue to Step 3.
 
 Otherwise:
 

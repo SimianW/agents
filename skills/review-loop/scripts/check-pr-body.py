@@ -227,13 +227,16 @@ def git_bytes(*args, cwd=None):
     return result.stdout
 
 
-# Canonical diff options: local git config (diff.noprefix, diff.mnemonicPrefix, diff.relative,
-# diff.external, diff.algorithm, diff.context, color) and .gitattributes textconv must never change
-# the hash. review-loop's SKILL.md fallback one-liner uses these same flags; change both together.
+# Canonical diff options: local git config (core.quotePath, core.abbrev, diff.renames,
+# diff.noprefix, diff.mnemonicPrefix, diff.relative, diff.external, diff.algorithm, diff.context,
+# diff.interHunkContext, diff.orderFile, color) and .gitattributes textconv must never change the
+# hash. review-loop's SKILL.md fallback one-liner uses these same flags; change both together.
 CANONICAL_DIFF = (
-    "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.relative=false",
-    "diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-color",
-    "--src-prefix=a/", "--dst-prefix=b/", "--diff-algorithm=myers", "-U3",
+    "-c", "core.quotePath=true", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false",
+    "-c", "diff.relative=false",
+    "diff", "--binary", "--full-index", "--no-renames", "--no-ext-diff", "--no-textconv",
+    "--no-color", "--src-prefix=a/", "--dst-prefix=b/", "--diff-algorithm=myers",
+    "--inter-hunk-context=0", "-O/dev/null", "-U3",
 )
 
 

@@ -101,13 +101,16 @@ Find the base after `git fetch origin`:
 Commit the change in those paths before round 1, untracked files included,
 so nothing reviewed sits outside the hash. The change is `<base>..<head>`,
 where `<head>` is that commit's sha. Use one diff command all rounds.
-Compute the 12-char diff hash of exactly that commit with
-`python3 scripts/check-pr-body.py diff-hash <base> HEAD`, or, when the repo
-has no script or its script has no `diff-hash` mode, with this one-liner
-(the script's canonical flags, so both give the same hash):
+Compute the 12-char diff hash of exactly that commit with the `diff-hash`
+mode of the repo's configured PR-body checker (`scripts/check-pr-body.py`,
+or an integrated check such as `scripts/review-tier.py`), e.g.
+`python3 scripts/check-pr-body.py diff-hash <base> <head>`, or, when the
+repo has no checker or its checker has no `diff-hash` mode, with this
+one-liner (the template checker's canonical flags, so both give the same
+hash):
 
 ```
-git -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers -U3 <base> HEAD -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
+git -c core.quotePath=true -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --full-index --no-renames --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers --inter-hunk-context=0 -O/dev/null -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
 ```
 
 State intent and out-of-scope in 1-2 sentences. Copy the PR body's (or
@@ -140,9 +143,9 @@ Intent: <intent> Out of scope: <scope> Checks: <results>
 Test changes: <Existing tests modified/removed entry from PR body or draft evidence, or "None">
 See: git diff <base> <head> [-- <paths>]
 Compute the 12-char diff hash of exactly <base>..<head> and put it in your Verdict header:
-python3 scripts/check-pr-body.py diff-hash <base> <head>
-or, with no script or no diff-hash mode:
-git -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
+<the repo's PR-body checker diff-hash command, e.g. python3 scripts/check-pr-body.py diff-hash <base> <head>>
+or, with no checker or no diff-hash mode:
+git -c core.quotePath=true -c diff.noprefix=false -c diff.mnemonicPrefix=false -c diff.relative=false diff --binary --full-index --no-renames --no-ext-diff --no-textconv --no-color --src-prefix=a/ --dst-prefix=b/ --diff-algorithm=myers --inter-hunk-context=0 -O/dev/null -U3 <base> <head> -- | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:12])"
 Standards (apply every rule to the diff):
 <full text of CODING_STANDARDS.md>
 Read surrounding code. Find bugs, broken callers, mismatch with intent.
@@ -269,11 +272,16 @@ in the PR, every approving seat's Verdict header hash equals
 cross-check no blocker or should is `open` or `disputed`. A hash mismatch
 means a seat reviewed other content: re-run that seat on `<sha>`.
 A seat's CHANGES verdict does not block when all of its findings were
-declined or refuted. You have no concern of your own.
+declined or refuted. You have no concern of your own. If only Tier-0
+follow-up edits (a README nit, say) were committed after `<sha>`, the loop
+is still Approved: keep `Verdict:` on the last reviewed `<sha>` and its
+verified diff hash.
 
 **Stuck:** a finding is still `disputed` after a round that re-checked it,
-or the budget ends with a blocker or should open. Show both sides in 2-3
-lines each. Budget end is not approval. The user decides among:
+the budget ends with a blocker or should open, or the budget ends with a
+fix to a tier ≥ 1 file committed that no round has reviewed yet. Show both
+sides in 2-3 lines each (for an unreviewed fix: the findings it addresses
+and its diff). Budget end is not approval. The user decides among:
 
 - **Narrow:** cut the contested branch back to base behavior and file a
   follow-up issue; the cut gets one review round. Recommend it when the
@@ -318,9 +326,10 @@ Keep the Verdict item in exactly this shape: CI scripts match it and verify
 the short hash of the commit the panel approved or the user overrode;
 `<12-hex>` is the hash you verified against the approving seats' headers
 under Approved, never one recomputed over a commit no seat reviewed. Write
-the ``(diff `<12-hex>`)`` suffix when the repo's `scripts/check-pr-body.py`
-has a `diff-hash` mode, or the repo has no checker. A repo whose checker
-predates `diff-hash` keeps the plain `` approved at `<sha>` `` shape (and
+the ``(diff `<12-hex>`)`` suffix when the repo's configured PR-body checker
+(`scripts/check-pr-body.py`, or an integrated check such as
+`scripts/review-tier.py`) has a `diff-hash` mode, or the repo has no
+checker. A repo whose checker predates `diff-hash` keeps the plain `` approved at `<sha>` `` shape (and
 `` overridden by <user> at `<sha>` ``), since its CI rejects the suffix, until
 `/simianize` upgrades the checker. Drop
 `, <n> narrowed` or `, <n> overridden` when there is none. A later commit
@@ -365,7 +374,8 @@ When the base branch moves after approval:
   round**. Every seat reviews only the conflict resolution
   (`git show --remerge-diff <merge>`), and the round does not count against
   the budget. APPROVE: set the Verdict to the merge commit and its diff hash
-  (`python3 scripts/check-pr-body.py diff-hash origin/<base> <merge>`). A confirmed
+  (the configured checker's `diff-hash origin/<base> <merge>`, e.g.
+  `python3 scripts/check-pr-body.py diff-hash origin/<base> <merge>`). A confirmed
   blocker or should: fix it in a normal round, which counts; with no budget
   left, the loop is Stuck.
 - An overridden PR whose check fails after the merge goes back to the user
