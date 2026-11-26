@@ -9,12 +9,12 @@ Shared reference for starting subagents and verifying their work. Read when acti
 | **Build** | features, fixes, refactors, scripts; diagnosing and fixing a reported bug as one block; builds needing design decisions or spanning modules | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
 | **Build-light** | docs, packaging, small scripts, edits whose brief lists every change | Sonnet | `{"providerInstanceId": "claudeAgent", "model": "claude-sonnet-5-5", "options": {"effort": "medium"}}` |
 | **Hunt** | review a diff, report, or design someone else wrote; proactive audits for unreported bugs | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high", "serviceTier": "priority"}}` |
-| **Drive** | lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse, keyboard) | Opus | `{"providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "options": {"effort": "high"}}` |
+| **Drive** | lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse, keyboard) | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high", "serviceTier": "priority"}}` |
 | **Chore** | read, extract, or summarize files, PDFs, logs, and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
 Two special cases:
 
-- **Audit with lab or browser runs:** split it—Sol plans the audit and judges findings, Drive runs the lab or browser steps.
+- **Audit with lab or browser runs:** split it—Hunt plans the audit and judges findings, Drive runs the lab or browser steps.
 - **Frontend build:** you own the design; brief the builder per the `mockup-first` skill.
 
 ## Briefs
