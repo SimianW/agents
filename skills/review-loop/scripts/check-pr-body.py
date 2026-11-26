@@ -4,10 +4,11 @@
 Copy to `scripts/check-pr-body.py` in the repo, fill in the `TODO(repo)` blanks below, and run it
 in CI on every pull request (example workflow at the bottom of this file).
 
-Two modes:
+Three modes:
 
-    python3 scripts/check-pr-body.py tier [base]          # print `Review tier: N` for HEAD's changes
-    PR_BODY=... python3 scripts/check-pr-body.py [base]   # check a PR body (CI)
+    python3 scripts/check-pr-body.py tier [base]                # print `Review tier: N` for HEAD's changes
+    python3 scripts/check-pr-body.py diff-hash [base] [rev]     # print 12-char SHA-256 of `<merge-base>..<rev>` diff
+    PR_BODY=... python3 scripts/check-pr-body.py [base]         # check a PR body (CI)
 
 `base` defaults to DEFAULT_BASE. The PR body records the review as a Markdown list, by convention
 under a `## Review` heading at the end of the body (layout in the `pr` skill):
@@ -15,17 +16,20 @@ under a `## Review` heading at the end of the body (layout in the `pr` skill):
     ## Review
 
     - **Tier:** 1
-    - **Verdict:** approved at `fd81ae1`
+    - **Verdict:** approved at `fd81ae1` (diff `a1b2c3d4e5f6`)
     - **Reviewers:** gpt-6.2-sol ×2, claude-opus-5-5 ×2
 
 The check enforces:
 
 1. The first Tier item gives N in 0..MAX_TIER, and N is at least the tier computed from the changed
-   files against base.
+   files against base. Agent steering files (`AGENTS.md`, `CLAUDE.md`, `CODING_STANDARDS.md`,
+   `docs/bugfix.md`, `docs/agents/*`) are tier 1, not tier 0.
 2. When the computed tier is at least REVIEW_FROM_TIER, the last Verdict item reads
-   `approved at <sha>` or `overridden by <user> at <sha>` (7 to 40 hex digits, backticks optional;
+   `approved at <sha> (diff <12-hex>)` or `overridden by <user> at <sha> (diff <12-hex>)`
+   (7 to 40 hex digits for sha, 12 hex digits for diff hash, backticks optional;
    the override form records a person shipping a stuck review-loop), the sha exists in this checkout
-   and is an ancestor of HEAD, and nothing changed after it reaches REVIEW_FROM_TIER. A rewrite
+   and is an ancestor of HEAD, its `<merge-base>..<sha>` diff hash matches `<12-hex>`, and nothing
+   changed after it reaches REVIEW_FROM_TIER. A rewrite
    that drops the approved commit from HEAD's history (a rebase, or an amend or force-push of that
    commit) fails the ancestor rule: review-loop's After approval updates a PR only by merging the
    base branch in. The approved commit is replayed onto the current base with `git merge-tree`
@@ -45,6 +49,7 @@ Items inside HTML comments (`<!-- ... -->`) and fenced code blocks do not count:
 
 Exits 0 when the body passes; 1 with one `FAIL:` line per failure otherwise; 2 on bad usage.
 """
+import hashlib
 import os
 import re
 import subprocess
@@ -73,6 +78,17 @@ HIGH_RISK_FILES = (
     "scripts/check-pr-body.py",  # This check gates itself: weakening it needs a tier-2 review.
     # TODO(repo): single files that read or write secrets, storage or permissions, e.g.
     # "Dockerfile", "docker-compose.yml", "src/config/schema.ts".
+)
+
+# Tier 1: agent steering files are executable instructions for agents, never tier 0.
+AGENT_STEERING_PREFIXES = (
+    "docs/agents/",
+)
+AGENT_STEERING_FILES = (
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CODING_STANDARDS.md",
+    "docs/bugfix.md",
 )
 
 # Tier 0: changes that need only the CI checks, no review.
@@ -112,7 +128,10 @@ def classify_special(path, base_rev, root, conflicted):
 FENCE_OPENER = re.compile(r"(`{3,}|~{3,})(.*)")
 TIER_ITEM = re.compile(r"[-*] \*\*Tier:\*\* ([0-9]+)")
 CONFLICT_MARKER = re.compile(r"(.+):([0-9]+): leftover conflict marker")
-VERDICT_ITEM = re.compile(r"[-*] \*\*Verdict:\*\* (approved|overridden by [^`@\s]+) at (`?)([0-9a-fA-F]{7,40})\2")
+VERDICT_ITEM = re.compile(
+    r"[-*] \*\*Verdict:\*\* (approved|overridden by [^`@\s]+) at (`?)([0-9a-fA-F]{7,40})\2"
+    r" \(diff (`?)([0-9a-fA-F]{12})\4\)"
+)
 
 
 def rendered_lines(body):
@@ -197,6 +216,24 @@ def changed_since(rev, root):
     return sorted({path for path in (tracked + untracked).split("\0") if path})
 
 
+def git_bytes(*args, cwd=None):
+    result = subprocess.run(["git", *args], capture_output=True, cwd=cwd)
+    if result.returncode != 0:
+        message = result.stderr.decode("utf-8", "replace").strip()
+        raise GitError(f"git {' '.join(args)} failed: {message}")
+    return result.stdout
+
+
+def diff_hash(base_rev, head_rev, root):
+    """Return 12-char lowercase SHA-256 hex digest of the binary diff from base_rev to head_rev
+    (or working tree when head_rev is None)."""
+    args = ["diff", "--binary", base_rev]
+    if head_rev is not None:
+        args.append(head_rev)
+    args.append("--")
+    return hashlib.sha256(git_bytes(*args, cwd=root)).hexdigest()[:12]
+
+
 def classify_path(path, base_rev, root, conflicted=False):
     """Return (tier, reason) for one path. The first matching rule wins."""
     special = classify_special(path, base_rev, root, conflicted)
@@ -204,6 +241,8 @@ def classify_path(path, base_rev, root, conflicted=False):
         return special
     if path.startswith(HIGH_RISK_PREFIXES) or path in HIGH_RISK_FILES:
         return MAX_TIER, f"{path} (high risk)"
+    if path.startswith(AGENT_STEERING_PREFIXES) or path in AGENT_STEERING_FILES:
+        return 1, f"{path} (agent instructions)"
     if path.startswith(CHECKS_ONLY_PREFIXES) or PurePosixPath(path).suffix in CHECKS_ONLY_SUFFIXES:
         return 0, f"{path} (docs or assets)"
     return 1, path
@@ -231,7 +270,7 @@ def check_conflict_markers(merge_base, root):
     return [], ["no leftover conflict markers"]
 
 
-def check_body(body, tier, reasons, review_gate, head):
+def check_body(body, tier, reasons, review_gate, head, head_diff_hash="000000000000"):
     """Return (failures, passes) for a PR body against the computed tier."""
     lines = rendered_lines(body)
     failures, passes = [], []
@@ -251,11 +290,14 @@ def check_body(body, tier, reasons, review_gate, head):
 
     verdicts = [m for m in map(VERDICT_ITEM.fullmatch, lines) if m]
     if not verdicts:
-        failures.append(f"tier {tier} needs a Verdict item; add `- **Verdict:** approved at {head}` after review-loop approves")
+        failures.append(
+            f"tier {tier} needs a Verdict item with diff hash; add "
+            f"`- **Verdict:** approved at `{head}` (diff `{head_diff_hash}`)` after review-loop approves"
+        )
         return failures, passes
-    verdict, sha = verdicts[-1].group(1), verdicts[-1].group(3)
-    passes.append(f"Verdict: {verdict} at {sha}")
-    gate_failures, gate_passes = review_gate(sha)
+    verdict, sha, expected_hash = verdicts[-1].group(1), verdicts[-1].group(3), verdicts[-1].group(5).lower()
+    passes.append(f"Verdict: {verdict} at {sha} (diff {expected_hash})")
+    gate_failures, gate_passes = review_gate(sha, expected_hash)
     return failures + gate_failures, passes + gate_passes
 
 
@@ -276,8 +318,8 @@ def replayed_tree(sha, base, root):
     return tree.strip(), {path for path in paths if path} if status == 1 else set()
 
 
-def check_after_review(sha, base, root):
-    """Return (failures, passes) for the changes made after the approved commit."""
+def check_after_review(sha, expected_hash, base, root):
+    """Return (failures, passes) for the diff hash and changes made after the approved commit."""
     try:
         full = git("rev-parse", "--verify", "--quiet", f"{sha}^{{commit}}", cwd=root).strip()
     except GitError:
@@ -291,10 +333,18 @@ def check_after_review(sha, base, root):
             f"approved commit {sha} is not an ancestor of HEAD: the approved history was rewritten (rebase, amend or "
             "force-push); follow review-loop's After approval and merge the base branch in instead of rebasing"
         ], []
+    old_base = git("merge-base", full, base, cwd=root).strip()
+    actual_hash = diff_hash(old_base, full, root)
+    if actual_hash != expected_hash:
+        return [
+            f"Verdict diff hash {expected_hash} does not match commit {sha}'s diff against base ({actual_hash}); "
+            "recompute with `python3 scripts/check-pr-body.py diff-hash` after review-loop approves"
+        ], []
+    hash_pass = f"diff hash {actual_hash} matches commit {sha}"
     reviewed, conflicted = replayed_tree(full, base, root)
     changed = sorted(set(changed_since(reviewed, root)) | conflicted)
     if not changed:
-        return [], [f"nothing changed after the approved commit {sha}"]
+        return [], [hash_pass, f"nothing changed after the approved commit {sha}"]
     tier, reasons = classify(changed, reviewed, root, conflicted)
     if tier >= REVIEW_FROM_TIER:
         return [
@@ -303,7 +353,7 @@ def check_after_review(sha, base, root):
             "Verdict gets one merge round on that resolution and an override goes back to the user; otherwise run a "
             "new review-loop round"
         ], []
-    return [], [f"changes after the approved commit {sha} are tier 0"]
+    return [], [hash_pass, f"changes after the approved commit {sha} are tier 0"]
 
 
 def collect(base):
@@ -314,29 +364,43 @@ def collect(base):
 
 
 def main(argv):
-    tier_mode = bool(argv) and argv[0] == "tier"
-    args = argv[1:] if tier_mode else argv
-    if len(args) > 1 or (args and args[0].startswith("-")):
-        print("usage: check-pr-body.py tier [base] | PR_BODY=... check-pr-body.py [base]", file=sys.stderr)
+    mode = argv[0] if argv and argv[0] in ("tier", "diff-hash") else "check"
+    args = argv[1:] if mode != "check" else argv
+    max_args = 2 if mode == "diff-hash" else 1
+    if len(args) > max_args or any(a.startswith("-") for a in args):
+        print(
+            "usage: check-pr-body.py tier [base] | check-pr-body.py diff-hash [base] [rev] "
+            "| PR_BODY=... check-pr-body.py [base]",
+            file=sys.stderr,
+        )
         return 2
     base = args[0] if args else DEFAULT_BASE
     try:
+        root = git("rev-parse", "--show-toplevel").strip()
+        if mode == "diff-hash":
+            rev = args[1] if len(args) == 2 else None
+            target = rev or "HEAD"
+            mb = git("merge-base", target, base, cwd=root).strip()
+            print(diff_hash(mb, rev, root))
+            return 0
         root, merge_base, paths = collect(base)
         if not paths:
             print(f"check-pr-body: no changes against {base} (merge base {merge_base[:7]})", file=sys.stderr)
             return 1
         tier, reasons = classify(paths, merge_base, root)
-        if tier_mode:
+        if mode == "tier":
             print(f"Review tier: {tier}")
             print("\n".join(reasons))
             return 0
         head = git("rev-parse", "--short", "HEAD", cwd=root).strip()
+        head_hash = diff_hash(merge_base, "HEAD", root)
         failures, passes = check_body(
             os.environ.get("PR_BODY", ""),
             tier,
             reasons,
-            lambda sha: check_after_review(sha, base, root),
+            lambda sha, expected_hash: check_after_review(sha, expected_hash, base, root),
             head,
+            head_hash,
         )
         marker_failures, marker_passes = check_conflict_markers(merge_base, root)
         failures, passes = failures + marker_failures, passes + marker_passes

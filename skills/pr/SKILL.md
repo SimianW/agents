@@ -20,6 +20,8 @@ Use this template for writing the PR body:
 
 - **Before:** <screenshot/output/failing test run>
 - **After:** <screenshot/output/passing test run>
+- **Existing tests modified/removed:** None (or list each modified/weakened assertion + why)
+- **Not verified here:** <explicit blind spots: concurrency, prod config, perf, etc.>
 
 ## Merge Danger
 
@@ -33,7 +35,8 @@ Use this template for writing the PR body:
 
 - **Tier:** <N>
 - **Cap raised:** `<path>` <old cap, or new> → <cap>: <reason>
-<Verdict and Reviewers items, then folded findings, filled by review-loop>
+- **Verdict:** approved at `<sha>` (diff `<12-hex>`)
+<Reviewers item and folded findings, filled by review-loop>
 ```
 
 ## Sections
@@ -167,9 +170,14 @@ You may use one of these, you may use several, it is unlikely you will use all o
 
 Concrete evidence that the change works. Show a before and after.
 
-Screenshots are S-tier - when the environment is set up for it and the change is visual.
+Screenshots are S-tier — and **mandatory** for any PR that changes visible UI: embed at least one real screenshot of the running UI (Before/After for changes to an existing UI) directly in `## Evidence`. Prose descriptions of local screenshots do not satisfy visual evidence.
 
 Execution-based evidence is A-tier. Test results, console output. Show the exact test that now fails and passes, using pseudocode.
+
+Always include both trust-check items:
+
+- **Existing tests modified/removed:** write `None` when untouched, or list every modified, loosened, or deleted test assertion with its reason. Unexplained test weakening is flagged by `review-loop`.
+- **Not verified here:** state concrete blind spots not exercised by your checks (e.g., real multi-threaded concurrency, production secrets/env, load/perf, mobile Safari).
 
 ### Merge Danger
 

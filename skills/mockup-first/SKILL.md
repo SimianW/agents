@@ -42,3 +42,5 @@ Send the build to the builder your routing rules name for builds. The brief leav
 ## Verify against the mockup
 
 This applies whether you built the change or a delegate did. Compare the real UI with the mockup panel by panel: same state, theme, and width. Done when every panel in scope has a matching screenshot of the real UI and every difference is either fixed or listed under Deviations with its reason. For a delegated build, check each returned screenshot yourself and send each mismatch back as a new task with the exact correction.
+
+When the change ships in a pull request, embed at least one real screenshot of the running UI (Before/After for edits to an existing UI) directly in the PR body's `## Evidence` section (since `mockups/` is local/gitignored, prose summaries alone do not give the reviewer visual proof).

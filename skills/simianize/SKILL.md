@@ -29,7 +29,7 @@ Record the instructions file's starting line count for Step 7 (`0` if newly crea
 
 Read [setup-matt-pocock-skills](../setup-matt-pocock-skills/SKILL.md) and run its process with two changes: place its `## Agent skills` block in the settled instructions file, and batch its questions into one dialog. On a re-run where the done-check already passes, proceed to Step 2.
 
-Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has `## Agent skills`, and the tracker has every label in `docs/agents/triage-labels.md`.
+Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, the instructions file has `## Agent skills`, and the tracker has every label named in `docs/agents/triage-labels.md` and `docs/agents/issue-tracker.md` (including `wayfinder:map`, `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, `wayfinder:task` when listed).
 
 ## 2. Gate
 

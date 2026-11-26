@@ -12,10 +12,11 @@ Shared reference for starting subagents and verifying their work. Read when acti
 | **Drive** | lab and browser runs, scripted (Playwright, CDP, harness scripts) or computer-use (screenshots, mouse, keyboard) | Sol | `{"providerInstanceId": "codex", "model": "gpt-6.2-sol", "options": {"reasoningEffort": "high", "serviceTier": "priority"}}` |
 | **Chore** | read, extract, or summarize files, PDFs, logs, and web pages; locate code; rule-based edits; version bumps | Haiku | `{"providerInstanceId": "claudeAgent", "model": "claude-haiku-5-5", "options": {"effort": "high"}}` |
 
-Two special cases:
+Three special cases:
 
 - **Audit with lab or browser runs:** split it—Hunt plans the audit and judges findings, Drive runs the lab or browser steps.
 - **Frontend build:** you own the design; brief the builder per the `mockup-first` skill.
+- **Security-regression browser check (`Drive`):** verify escaping with benign DOM markers (e.g., confirm `<strong>marker</strong>` renders as plain text rather than an HTML element) instead of "XSS" or "exploit" phrasing so provider safety filters do not block the run.
 
 ## Briefs
 
@@ -23,6 +24,7 @@ Two special cases:
 - **Batch:** launch independent tasks together in one turn.
 - **Self-contained prompt:** state the goal, relevant paths and facts, and the done-check.
 - **Done-check:** write a concrete command with its expected output, or an artifact to produce. If you cannot write one, the block is unscoped—split it or settle the open question first.
+- **Failed or timed-out non-review delegate:** in T3 Code, first resume the child via `t3_thread_send` to its `childThreadId` so it continues with its existing context. Only if continuing fails or outside T3, inspect `git status` and `git diff` in a shared checkout, then either revert partial edits or launch a fresh delegate with a `Resume note`. (`review-loop` reviews always start fresh via `delegate_task`.)
 - **Ending:** close every brief with the block below (`review-loop` briefs use that skill's reply format instead):
 
 ```text

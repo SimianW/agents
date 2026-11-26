@@ -6,14 +6,16 @@ Disclosed procedure for pull requests, size/length checks, and multi-step featur
 
 Every change reaches `<base branch>` through a PR.
 
-1. Run `<tier command>` and include `- **Tier:** N` under `## Review` in the PR body (use the `pr` skill). Open the PR as a **draft** (`pr-body` CI runs on ready PRs).
-2. For **Tiers 1 and 2**, run `review-loop` on the final diff (within the tier's round budget). On `APPROVE`, `review-loop` adds `- **Verdict:**` and `- **Reviewers:**` to the PR body. (**Tier 0** skips this step.)
+1. Run `<tier command>` and include `- **Tier:** N` under `## Review` in the PR body (use the `pr` skill). Pushing to open a **draft PR** before review is allowed so CI runs early (`pr-body` CI runs only on ready PRs).
+2. For **Tiers 1 and 2**, run `review-loop` on the final diff (within the tier's round budget). On `APPROVE`, `review-loop` adds `- **Verdict:** approved at \`<sha>\` (diff \`<12-hex>\`)` and `- **Reviewers:**` to the PR body. (**Tier 0** skips this step.)
 3. Run the local body check: `<body check command>` (e.g., `PR_BODY="$(cat body.md)" python3 scripts/check-pr-body.py`).
-4. Mark the draft PR **ready** once the local check passes, and merge only after CI is green.
+4. Mark the draft PR **ready** only after `review-loop` approves (for Tiers 1–2) and the local body check passes; merge only after CI is green.
 
-## PR size
+## PR size and splitting
 
 CI labels each PR from `size/XS` to `size/XXL` by lines of code changed (excluding prose, lock files, and binaries). Run `python3 scripts/pr-size.py` to check locally; CI owns setting the label.
+
+When a task mixes a **structural refactor** (such as splitting a capped file along a seam) with **behavior changes**, or is projected to exceed `size/L`, ship the behavior-preserving refactor as its own small PR first, then stack the focused bugfix or feature PR on top.
 
 ## File length ratchet
 

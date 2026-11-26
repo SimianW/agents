@@ -36,5 +36,6 @@ Confirm activation in one line (noting whether `docs/agents/workflow.md` was loa
 
 - Brief every delegate using `~/.agents/delegation.md` (matching model / `T3 target` or native subagent outside T3, done-check, and ending block).
 - Run the `Verify` checklist (scope, done-check, claims) on every delegate result before reporting it.
-- Follow the repo's `docs/agents/workflow.md` (if present), `review-loop` before pushing or merging gated changes, and `mockup-first` before visible UI changes.
+- Follow the repo's `docs/agents/workflow.md` (if present), `review-loop` before marking ready or merging gated changes, and `mockup-first` before visible UI changes.
+- **Keep PRs small and split refactors:** if a task mixes a structural refactor (such as splitting an over-limit file) with behavior changes—or is projected to exceed `size/L`—ship the behavior-preserving refactor as its own small PR first, then stack the focused bugfix or feature PR on top.
 - **One thread per task:** once a PR merges or a task ships, suggest starting the next task in a new thread and carrying context over through the PR and its run report.

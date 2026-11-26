@@ -51,7 +51,7 @@ git -C ~/.agents diff
 
 An update overwrites local edits to an upstream skill. These skills carry local edits:
 
-- `pr` (upstream `mattpocock/skills`): the `+`/`-` colour rule for `diff` blocks, `Review` section, and `Cap raised` format.
+- `pr` (upstream `mattpocock/skills`): the `+`/`-` colour rule for `diff` blocks, `Review` section with `Tier`/`Cap raised`/diff-hash `Verdict`, UI screenshot requirement, and `Existing tests modified/removed` + `Not verified here` evidence lines.
 - `code-review` (upstream `mattpocock/skills`): tightened model-invoked description.
 - `wizard` (upstream `mattpocock/skills`): tightened model-invoked description.
 - `git-guardrails-claude-code`, `setup-pre-commit`, `migrate-to-shoehorn` (upstream `mattpocock/skills`): set `disable-model-invocation: true` with concise human-facing descriptions.

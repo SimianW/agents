@@ -12,16 +12,18 @@ Done when: you have seen the bug yourself, or the user's capture shows this repo
 
 Build the feedback loop with the `diagnosing-bugs` skill (Phase 1), at the first seam in [docs/agents/seams.md](agents/seams.md) that reaches the bug.
 
-Done when: one command goes **red** on this bug, and you have run it and seen it fail.
+If no automated seam reaches the bug (manual-only seam), write exact step-by-step reproduction commands and run them on the base commit to confirm the failing behavior, as `CODING_STANDARDS.md` allows.
+
+Done when: one automated command goes **red** on this bug and you have seen it fail—or, for a manual-only seam, the written steps reproduce the bug on the base commit.
 
 ## 3. Green
 
-Fix it with the `tdd` skill: the smallest change that turns the step 2 command **green**.
+Fix it with the `tdd` skill: the smallest change that turns the step 2 command **green** (or makes the manual repro steps pass on this branch).
 
-Done when: the step 2 command passes, and so does every check in <the CI workflow file>, run locally.
+Done when: the step 2 check passes, and every local test, lint, and file-length check in `<the CI test/length workflows>` passes locally (`pr-body` runs in step 4 after `review-loop`).
 
 ## 4. Review and ship
 
-Follow [docs/agents/workflow.md](agents/workflow.md) to review and ship. The PR body carries the step 1 result and the step 2 command.
+Follow [docs/agents/workflow.md](agents/workflow.md) to review, run the PR-body check, and ship. The PR body carries the step 1 result and the step 2 command (or manual repro steps).
 
-Done when: the PR is open with the `- **Tier:** N` item in its Review section and, for tiers 1 and 2, an APPROVE recorded as `- **Verdict:** approved at <sha>`.
+Done when: the PR is open with `- **Tier:** N` in its `## Review` section, passes the local PR-body check, and—for tiers 1 and 2—records `review-loop` `APPROVE` as `- **Verdict:** approved at \`<sha>\` (diff \`<12-hex>\`)`.
