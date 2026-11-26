@@ -17,19 +17,6 @@ Show the user any gate file that falls short and offer to make it tier 2 with a 
 
 **Done when (existing script):** the repo has both a tier command and a working PR-body check + CI job, and the PR-body check gets its tier from the same classifier as the tier command (on the same change, both name the same tier); in a scratch worktree, appending a line of code to each gate file one at a time makes the tier command print `Review tier: 2` naming that file, and the script's tests pass.
 
-## Upgrading an existing PR-body checker
-
-When `/simianize` runs again on a repo that already has a PR-body checker, whether `scripts/check-pr-body.py` or a check integrated into `scripts/review-tier.py` (or another script the `<body check command>` names), compare it with the template in `~/.agents/skills/review-loop/scripts/check-pr-body.py` and upgrade these generic parts from the template (in an integrated checker, add the equivalent functions and modes to that script rather than installing a second classifier):
-
-- `VERDICT_ITEM` and `check_body`: the ``(diff `<12-hex>`)`` suffix;
-- the `diff-hash` mode (`rev` defaults to `HEAD`) and the tree-pair `diff_hash`, which hashes `<merge-base>^{tree}..<rev>^{tree}` instead of `git diff` output, so no local git config changes it;
-- `check_after_review`: the diff-hash match before the after-approval check;
-- the `AGENT_STEERING_*` rules (`AGENTS.md` and `CLAUDE.md` by basename, in any folder).
-
-Keep the repo's own `DEFAULT_BASE`, `HIGH_RISK_*`, `CHECKS_ONLY_*`, `classify_special`, and any other custom repo rules as they are. Until the upgrade lands, PRs keep the plain `` approved at `<sha>` `` Verdict the old checker accepts.
-
-**Done when (upgrade):** the checker's `diff-hash <base> HEAD` prints the same hash as the template's, a Verdict with the right diff hash passes and a wrong one fails, a nested `AGENTS.md` is tier 1, and each gate file is still tier 2.
-
 ## Existing file-length check (Step 3)
 
 A repo that already enforces file length (e.g., ESLint `max-lines`) keeps its own check and skips installing `file-length.py` and `file-length.yml`, **provided** it also compares caps against the PR's base:

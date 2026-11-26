@@ -106,9 +106,9 @@ mode of the repo's configured PR-body checker (`scripts/check-pr-body.py`,
 or an integrated check such as `scripts/review-tier.py`), e.g.
 `python3 scripts/check-pr-body.py diff-hash <base> <head>`, or, when the
 repo has no checker or its checker has no `diff-hash` mode, with this
-one-liner. Both hash `<merge-base>^{tree}..<head>^{tree}` (the two full
-tree ids, not a `git diff`), so they give the same hash and no local git
-config can change it:
+one-liner (which hashes `<merge-base>^{tree}..<head>^{tree}` so local
+diff-rendering git config cannot change it, matching the current template
+checker):
 
 ```
 python3 -c 'import hashlib,subprocess,sys; g=lambda *a:subprocess.check_output(["git",*a],text=True).strip(); b,h=g("merge-base",sys.argv[2],sys.argv[1]),sys.argv[2]; t=lambda r:g("rev-parse","--verify",r+"^{tree}"); print(hashlib.sha256((t(b)+".."+t(h)+"\n").encode()).hexdigest()[:12])' <base> <head>

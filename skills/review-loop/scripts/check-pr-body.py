@@ -227,8 +227,8 @@ def diff_hash(base_rev, head_rev, root):
     """Return 12-char lowercase SHA-256 hex digest of `<base_tree>..<head_tree>`.
 
     Uses Git's own full tree object IDs from `git rev-parse --verify <rev>^{tree}`, so the
-    digest uniquely identifies the committed tree change and is completely immune to all
-    local `git diff` and `core.*` configuration.
+    digest uniquely identifies the committed tree change and is immune to local
+    diff-rendering git configuration.
     """
     base_tree = git("rev-parse", "--verify", f"{base_rev}^{{tree}}", cwd=root).strip()
     head_tree = git("rev-parse", "--verify", f"{head_rev}^{{tree}}", cwd=root).strip()

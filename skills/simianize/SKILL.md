@@ -33,7 +33,8 @@ Done when: `CLAUDE.md` and the instructions file exist, `docs/agents/issue-track
 
 ## 2. Gate
 
-If the repo already has a tier script (`scripts/review-tier.py`, or `scripts/check-pr-body.py` with `tier` mode), read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing review-tier script" (and "Upgrading an existing PR-body checker" when the repo has one, standalone or integrated into its tier script), then continue to Step 3.
+- **Existing custom tier script (`scripts/review-tier.py`, etc.):** read [AUDIT-EXISTING.md](AUDIT-EXISTING.md) and follow "Existing review-tier script", then continue to Step 3.
+- **Re-run on a template `scripts/check-pr-body.py`:** keep its top `# Repo settings` block (including `HIGH_RISK_*`, `CHECKS_ONLY_*`, and `classify_special`, adding `AGENT_STEERING_*` if missing), replace everything below `# The rest is generic` from [check-pr-body.py](../review-loop/scripts/check-pr-body.py), and audit gate-file self-coverage per [AUDIT-EXISTING.md](AUDIT-EXISTING.md). (Or delete `scripts/check-pr-body.py` first to set it up fresh below.)
 
 Otherwise:
 
