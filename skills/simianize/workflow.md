@@ -17,6 +17,11 @@ CI labels each PR from `size/XS` to `size/XXL` by lines of code changed (excludi
 
 When a task mixes a **structural refactor** (such as splitting a capped file along a seam) with **behavior changes**, or is projected to exceed `size/L`, ship the behavior-preserving refactor as its own small PR first, then stack the focused bugfix or feature PR on top.
 
+For a stacked PR, open it against the parent PR's branch and pass that branch as `<base>` to the tier, `diff-hash`, `review-loop`, and local body-check commands:
+
+- **Merge-commit repos:** after the parent PR merges and GitHub retargets the child PR to `<base branch>`, the child's `merge-base` stays on the parent's tip, so its `Verdict` diff hash remains valid.
+- **Squash- or rebase-merge repos:** after the parent merges, the child's `merge-base` against `<base branch>` no longer matches the parent branch tip, so a pre-merge `Verdict` diff hash will fail CI. Keep stacked child PRs in draft until the parent merges (then update the branch and run `review-loop` against `<base branch>`), or re-run `review-loop` after retargeting.
+
 ## File length ratchet
 
 Every code file stays at or under `<limit>` lines.

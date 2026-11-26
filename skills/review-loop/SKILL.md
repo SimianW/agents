@@ -95,8 +95,11 @@ Find the base after `git fetch origin`:
 - PR: `gh pr view <n> --json baseRefName,headRefOid`. Check out the branch
   only if clean. Confirm `HEAD` is the PR head, or ahead only by this
   change. Base: `git merge-base HEAD origin/<baseRefName>`.
-- Local: `git merge-base HEAD origin/<default-branch>`. No remote: a base
-  the user names, or the commit the uncommitted change started from.
+- Local: `git merge-base HEAD origin/<default-branch>`, or
+  `git merge-base HEAD origin/<parent-branch>` (falling back to `<parent-branch>`)
+  when reviewing a stacked branch whose PR will target an unmerged parent PR.
+  No remote: a base the user names, or the commit the uncommitted change
+  started from.
 
 Commit the change in those paths before round 1, untracked files included,
 so nothing reviewed sits outside the hash. The change is `<base>..<head>`,

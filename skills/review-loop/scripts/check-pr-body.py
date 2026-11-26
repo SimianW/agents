@@ -27,7 +27,8 @@ The check enforces:
 
 1. The first Tier item gives N in 0..MAX_TIER, and N is at least the tier computed from the changed
    files against base. Agent steering files (`AGENTS.md` or `CLAUDE.md` in any folder,
-   `CODING_STANDARDS.md`, `docs/bugfix.md`, `docs/agents/*`) are tier 1, not tier 0.
+   `CODING_STANDARDS.md`, `docs/bugfix.md`, `docs/agents/*`) are at least tier 1, not tier 0
+   (still tier 2 if matched by a high-risk path).
 2. When the computed tier is at least REVIEW_FROM_TIER, the last Verdict item reads
    `approved at <sha> (diff <12-hex>)` or `overridden by <user> at <sha> (diff <12-hex>)`
    (7 to 40 hex digits for sha, 12 hex digits for diff hash, backticks optional;
@@ -342,8 +343,10 @@ def check_after_review(sha, expected_hash, base, root):
     actual_hash = diff_hash(old_base, full, root)
     if actual_hash != expected_hash:
         return [
-            f"Verdict diff hash {expected_hash} does not match commit {sha}'s diff against base ({actual_hash}); "
-            f"the Verdict must carry the hash the approving seats reviewed, `diff-hash {base} {sha}`"
+            f"Verdict diff hash {expected_hash} does not match commit {sha}'s diff against {base} ({actual_hash}); "
+            f"the Verdict must carry the hash the approving seats reviewed (`diff-hash {base} {sha}`). "
+            "If this is a stacked PR whose parent merged or whose base branch changed, its merge base moved "
+            "and the PR needs a new review-loop round against the current base"
         ], []
     hash_pass = f"diff hash {actual_hash} matches commit {sha}"
     reviewed, conflicted = replayed_tree(full, base, root)
